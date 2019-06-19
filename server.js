@@ -4,6 +4,7 @@
 
 "use strict";
 //External Dependencies
+require("dotenv")
 var Hapi = require("hapi");
 
 //Internal Dependencies
@@ -11,6 +12,10 @@ var Config = require("./config");
 var Plugins = require("./Plugins");
 var SocketManager = require("./lib/socketManager");
 var Routes = require("./routes");
+
+//Mongo connection
+var MongoConnect = require('./utils/mongoConnect');
+
 
 const init = async () => {
   //Create Server
@@ -44,7 +49,7 @@ const init = async () => {
   server.route({
     method: "GET",
     path: "/",
-    handler: function(req, res) {
+    handler: function (req, res) {
       return res.view("welcome");
     }
   });
@@ -53,15 +58,15 @@ const init = async () => {
 
   SocketManager.connectSocket(server);
 
-  server.events.on("response", function(request) {
+  server.events.on("response", function (request) {
     console.log(
       request.info.remoteAddress +
-        ": " +
-        request.method.toUpperCase() +
-        " " +
-        request.url.pathname +
-        " --> " +
-        request.response.statusCode
+      ": " +
+      request.method.toUpperCase() +
+      " " +
+      request.url.pathname +
+      " --> " +
+      request.response.statusCode
     );
     console.log("Request payload:", request.payload);
   });
