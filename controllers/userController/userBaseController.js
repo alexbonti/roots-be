@@ -24,14 +24,14 @@ var createUser = function (payloadData, callback) {
     function (cb) {
       if (payloadData.linkedinId) {
         var query = {
-          $or: [{ phoneNumber: payloadData.phoneNumber }, { linkedinId: payloadData.linkedinId }]
+          $or: [{ emailId: payloadData.emailId }, { linkedinId: payloadData.linkedinId }]
         }
         Service.UserService.getUser(query, {}, { lean: true }, function (error, data) {
           if (error) {
             cb(error);
           } else {
             if (data && data.length > 0) {
-              if (data[0].phoneVerified == true) {
+              if (data[0].emailVerified == true) {
                 cb(ERROR.USER_ALREADY_REGISTERED);
               }
               else {
@@ -48,14 +48,14 @@ var createUser = function (payloadData, callback) {
       }
       else {
         var query = {
-          $or: [{ phoneNumber: payloadData.phoneNumber }]
+          $or: [{ emailId: payloadData.emailId }]
         };
         Service.UserService.getUser(query, {}, { lean: true }, function (error, data) {
           if (error) {
             cb(error);
           } else {
             if (data && data.length > 0) {
-              if (data[0].phoneVerified == true) {
+              if (data[0].emailVerified == true) {
                 cb(ERROR.USER_ALREADY_REGISTERED)
               }
               else {
@@ -87,27 +87,6 @@ var createUser = function (payloadData, callback) {
       }
     },
     function (cb) {
-      //Validate countryCode
-      if (dataToSave.countryCode.lastIndexOf('+') == 0) {
-        if (!isFinite(dataToSave.countryCode.substr(1))) {
-          cb(ERROR.INVALID_COUNTRY_CODE);
-        }
-        else {
-          cb();
-        }
-      } else {
-        cb(ERROR.INVALID_COUNTRY_CODE);
-      }
-    },
-    // function (cb) {
-    //   //Validate phone No
-    //   if (dataToSave.phoneNumber && dataToSave.phoneNumber.split('')[0] == 0) {
-    //     cb(ERROR.INVALID_PHONE_NO_FORMAT);
-    //   } else {
-    //     cb();
-    //   }
-    // },
-    function (cb) {
       CodeGenerator.generateUniqueCode(6, UniversalFunctions.CONFIG.APP_CONSTANTS.DATABASE.USER_ROLES.USER, function (err, numberObj) {
         if (err) {
           cb(err);
@@ -124,16 +103,14 @@ var createUser = function (payloadData, callback) {
     function (cb) {
       //Insert Into DB
       dataToSave.OTPCode = uniqueCode;
-      // dataToSave.phoneNumber = payloadData.phoneNumber;
+      // dataToSave.emailId = payloadData.emailId;
       dataToSave.registrationDate = new Date().toISOString();
       Service.UserService.createUser(dataToSave, function (err, customerDataFromDB) {
         console.log('hello', err, customerDataFromDB)
         if (err) {
-          if (err.code == 11000 && err.message.indexOf('phoneNumber_1') > -1) {
+          if (err.code == 11000 && err.message.indexOf('emailId_1') > -1) {
             cb(ERROR.PHONE_NO_EXIST);
 
-          } else if (err.code == 11000 && ((err.message.indexOf('userName_1') > -1) || (err.message.indexOf('sortName_1') > -1))) {
-            cb(ERROR.USERNAME_EXIST);
           }
           else {
             cb(err)
@@ -173,15 +150,6 @@ var createUser = function (payloadData, callback) {
       } else {
         cb(ERROR.IMP_ERROR)
       }
-    },
-    function (cb) {
-      appVersion = {
-        latestIOSVersion: 100,
-        latestAndroidVersion: 100,
-        criticalAndroidVersion: 100,
-        criticalIOSVersion: 100
-      }
-      cb(null);
     }
   ], function (err, data) {
     if (err) {
@@ -190,8 +158,7 @@ var createUser = function (payloadData, callback) {
       return callback(null, {
         accessToken: accessToken,
         otpCode: customerData.OTPCode,
-        userDetails: UniversalFunctions.deleteUnnecessaryUserData(customerData),
-        appVersion: appVersion
+        userDetails: UniversalFunctions.deleteUnnecessaryUserData(customerData)
       });
     }
   });
@@ -202,7 +169,7 @@ var verifyOTP = function (userData, payloadData, callback) {
   async.series([
     function (cb) {
       var query = {
-        _id: userData.id
+        _id: userData._id
       };
       var options = { lean: true };
       Service.UserService.getUser(query, {}, options, function (err, data) {
@@ -228,11 +195,11 @@ var verifyOTP = function (userData, payloadData, callback) {
     function (cb) {
       //trying to update customer
       var criteria = {
-        _id: userData.id,
+        _id: userData._id,
         OTPCode: payloadData.OTPCode
       };
       var setQuery = {
-        $set: { phoneVerified: true },
+        $set: { emailVerified: true },
         $unset: { OTPCode: 1 }
       };
       var options = { new: true };
@@ -269,7 +236,7 @@ var loginUser = function (payloadData, callback) {
   async.series([
     function (cb) {
       var criteria = {
-        phoneNumber: payloadData.phoneNumber
+        emailId: payloadData.emailId
       };
       //var projection = {
       //    paymentCard: {$elemMatch: {isDefault: true}}
@@ -294,7 +261,7 @@ var loginUser = function (payloadData, callback) {
       } else {
         if (userFound && userFound.password != UniversalFunctions.CryptData(payloadData.password)) {
           cb(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.ERROR.INCORRECT_PASSWORD);
-        } else if (userFound.phoneVerified == false) {
+        } else if (userFound.emailVerified == false) {
 
           cb(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.ERROR.NOT_REGISTERED);
 
@@ -321,7 +288,7 @@ var loginUser = function (payloadData, callback) {
     },
     function (cb) {
       var criteria = {
-        phoneNumber: payloadData.phoneNumber
+        emailId: payloadData.emailId
 
       };
       var projection = {
@@ -330,10 +297,10 @@ var loginUser = function (payloadData, callback) {
         deviceType: 1,
         linkedinId: 1,
         countryCode: 1,
-        phoneNumber: 1,
+        emailId: 1,
         first_name: 1,
         last_name: 1,
-        phoneVerified: 1
+        emailVerified: 1
       };
       var option = {
         lean: true
@@ -422,7 +389,7 @@ var loginViaLinkedin = function (payloadData, callback) {
       if (!userFound) {
         cb(ERROR.LINKEDIN_ID_NOT_FOUND);
       }
-      else if (userFound.phoneVerified == false) {
+      else if (userFound.emailVerified == false) {
 
         cb(ERROR.NOT_REGISTERED);
 
@@ -457,10 +424,10 @@ var loginViaLinkedin = function (payloadData, callback) {
         deviceType: 1,
         linkedinId: 1,
         countryCode: 1,
-        phoneNumber: 1,
+        emailId: 1,
         first_name: 1,
         last_name: 1,
-        phoneVerified: 1
+        emailVerified: 1
       };
       var option = {
         lean: true
@@ -531,7 +498,7 @@ var resendOTP = function (userData, callback) {
   async.series([
     function (cb) {
       var query = {
-        _id: userData.id
+        _id: userData._id
       };
       var options = { lean: true };
       Service.UserService.getUser(query, {}, options, function (err, data) {
@@ -541,7 +508,7 @@ var resendOTP = function (userData, callback) {
           if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
           else {
             customerData = data && data[0] || null;
-            if (customerData.phoneVerified == true) {
+            if (customerData.emailVerified == true) {
               cb(ERROR.PHONE_VERIFICATION_COMPLETE);
             } else {
               cb();
@@ -566,7 +533,7 @@ var resendOTP = function (userData, callback) {
     },
     function (cb) {
       var criteria = {
-        _id: userData.id
+        _id: userData._id
       };
       var setQuery = {
         $set: {
@@ -586,7 +553,7 @@ var resendOTP = function (userData, callback) {
 
 var getOTP = function (payloadData, callback) {
   var query = {
-    phoneNumber: payloadData.phoneNumber
+    emailId: payloadData.emailId
   };
   var projection = {
     _id: 0,
@@ -615,7 +582,7 @@ var accessTokenLogin = function (userData, payloadData, callback) {
   async.series([
     function (cb) {
       var criteria = {
-        _id: userData.id
+        _id: userData._id
       }
       Service.UserService.getUser(criteria, {}, {}, function (err, data) {
         if (err) cb(err)
@@ -630,7 +597,7 @@ var accessTokenLogin = function (userData, payloadData, callback) {
     },
     function (cb) {
       var criteria = {
-        _id: userData.id
+        _id: userData._id
       };
       var setQuery = {
         deviceToken: payloadData.deviceToken,
@@ -644,7 +611,7 @@ var accessTokenLogin = function (userData, payloadData, callback) {
     },
     function (cb) {
       var criteria = {
-        _id: userData.id
+        _id: userData._id
       }
       Service.UserService.getUser(criteria, {}, {}, function (err, data) {
         if (err) cb(err)
@@ -660,7 +627,7 @@ var accessTokenLogin = function (userData, payloadData, callback) {
     },
     function (cb) {
       var criteria = {
-        _id: userData.id,
+        _id: userData._id,
 
       };
       var projection = {
@@ -669,10 +636,10 @@ var accessTokenLogin = function (userData, payloadData, callback) {
         deviceType: 1,
         linkedinId: 1,
         countryCode: 1,
-        phoneNumber: 1,
+        emailId: 1,
         first_name: 1,
         last_name: 1,
-        phoneVerified: 1
+        emailVerified: 1
       };
       var option = {
         lean: true
@@ -706,14 +673,16 @@ var accessTokenLogin = function (userData, payloadData, callback) {
 }
 
 var logoutCustomer = function (userData, callbackRoute) {
+  console.log(userData)
   async.series([
     function (cb) {
       var criteria = {
-        _id: userData.id
+        _id: userData._id
       }
       Service.UserService.getUser(criteria, {}, {}, function (err, data) {
         if (err) cb(err)
         else {
+          console.log(data)
           if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
           else {
             cb()
@@ -723,7 +692,7 @@ var logoutCustomer = function (userData, callbackRoute) {
       })
     },
     function (callback) {
-      var condition = { _id: userData.id };
+      var condition = { _id: userData._id };
       var dataToUpdate = { $unset: { accessToken: 1 } };
       Service.UserService.updateUser(condition, dataToUpdate, {}, function (err, result) {
         if (err) {
@@ -749,7 +718,7 @@ var getProfile = function (userData, callback) {
   async.series([
     function (cb) {
       var query = {
-        _id: userData.id
+        _id: userData._id
       };
       var projection = {
         __v: 0,
@@ -783,7 +752,7 @@ var changePassword = function (userData, payloadData, callbackRoute) {
   async.series([
     function (cb) {
       var query = {
-        _id: userData.id
+        _id: userData._id
       };
       var options = { lean: true };
       Service.UserService.getUser(query, {}, options, function (err, data) {
@@ -797,7 +766,7 @@ var changePassword = function (userData, payloadData, callbackRoute) {
     },
     function (callback) {
       var query = {
-        _id: userData.id
+        _id: userData._id
       };
       var projection = {
         password: 1
@@ -827,7 +796,7 @@ var changePassword = function (userData, payloadData, callbackRoute) {
     },
     function (callback) {
       var dataToUpdate = { $set: { 'password': newPassword } };
-      var condition = { _id: userData.id };
+      var condition = { _id: userData._id };
       Service.UserService.updateUser(condition, dataToUpdate, {}, function (err, user) {
         console.log("customerData-------->>>" + JSON.stringify(user));
         if (err) {
@@ -859,12 +828,12 @@ var forgetPassword = function (payloadData, callback) {
   async.series([
     function (cb) {
       var query = {
-        phoneNumber: payloadData.phoneNumber
+        emailId: payloadData.emailId
       };
       Service.UserService.getUser(query, {
         _id: 1,
-        phoneNumber: 1,
-        phoneVerified: 1,
+        emailId: 1,
+        emailVerified: 1,
         countryCode: 1
       }, {}, function (err, data) {
         if (err) {
@@ -874,7 +843,7 @@ var forgetPassword = function (payloadData, callback) {
           if (dataFound == null) {
             cb(ERROR.USER_NOT_REGISTERED);
           } else {
-            if (dataFound.phoneVerified == false) {
+            if (dataFound.emailVerified == false) {
               cb(ERROR.PHONE_VERIFICATION);
             } else {
               cb();
@@ -957,7 +926,7 @@ var forgetPassword = function (payloadData, callback) {
       if (error) {
         return callback(error);
       } else {
-        return callback(null, { phoneNumber: payloadData.phoneNumber, OTPCode: code });
+        return callback(null, { emailId: payloadData.emailId, OTPCode: code });
       }
     });
 }
@@ -970,12 +939,12 @@ var resetPassword = function (payloadData, callbackRoute) {
   async.series([
     function (callback) {
       var query = {
-        phoneNumber: payloadData.phoneNumber
+        emailId: payloadData.emailId
       };
       Service.UserService.getUser(query, {
         _id: 1,
         code: 1,
-        phoneVerified: 1
+        emailVerified: 1
       }, { lean: true }, function (err, result) {
         console.log("@@@@@@@@@@", err, result)
         if (err) {
@@ -988,7 +957,7 @@ var resetPassword = function (payloadData, callbackRoute) {
             if (payloadData.OTPCode != data.code) {
               callback(ERROR.INVALID_CODE);
             } else {
-              if (data.phoneVerified == false) {
+              if (data.emailVerified == false) {
                 callback(ERROR.NOT_VERFIFIED);
               } else {
                 customerId = data._id;
@@ -1068,7 +1037,7 @@ module.exports = {
   createUser: createUser,
   verifyOTP: verifyOTP,
   loginUser: loginUser,
-  loginViaLinkedinId: loginViaLinkedinId,
+  loginViaLinkedin: loginViaLinkedin,
   resendOTP: resendOTP,
   getOTP: getOTP,
   accessTokenLogin: accessTokenLogin,

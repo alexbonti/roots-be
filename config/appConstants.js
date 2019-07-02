@@ -104,7 +104,7 @@ var STATUS_MSG = {
     NOT_REGISTERED: {
       statusCode: 400,
       customMessage:
-        "You are not registered with YapApp. Kindly register yourself to avail services!",
+        "You are not registered. Kindly register yourself to avail services!",
       type: "NOT_REGISTERED"
     },
     LINKEDIN_ID_NOT_FOUND: {

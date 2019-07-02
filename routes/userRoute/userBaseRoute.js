@@ -9,35 +9,36 @@ var Config = require('../../config');
 var userRegister = {
   method: 'POST',
   path: '/api/user/register',
-  handler: function (request, reply) {
-    var payloadData = request.payload;
-    if (!UniversalFunctions.verifyEmailFormat(payloadData.emailId)) {
-      reply(UniversalFunctions.sendError(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.ERROR.INVALID_EMAIL_FORMAT));
-    }
-    else {
-      Controller.UserBaseController.createUser(payloadData, function (err, data) {
-        if (err) {
-          reply(UniversalFunctions.sendError(err));
-        } else {
-          reply(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.CREATED, data)).code(201)
-        }
-      });
-    }
-  },
   config: {
     description: 'Register a new user',
     tags: ['api', 'user'],
+    handler: function (request, h) {
+      var payloadData = request.payload;
+      return new Promise((resolve, reject) => {
+        if (!UniversalFunctions.verifyEmailFormat(payloadData.emailId)) {
+          reject(UniversalFunctions.sendError(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.ERROR.INVALID_EMAIL_FORMAT));
+        }
+        else {
+          Controller.UserBaseController.createUser(payloadData, function (err, data) {
+            console.log(">>>>>>>".err, data)
+            if (err) {
+              reject(UniversalFunctions.sendError(err));
+            } else {
+              resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.CREATED, data))
+            }
+          });
+        }
+      })
+
+    },
     validate: {
       payload: {
         first_name: Joi.string().regex(/^[a-zA-Z ]+$/).trim().min(2).required(),
         last_name: Joi.string().regex(/^[a-zA-Z ]+$/).trim().min(2).required(),
         emailId: Joi.string().required(),
-        phoneNumber: Joi.string().regex(/^[0-9]+$/).min(5).required(),
-        countryCode: Joi.string().max(4).required().trim(),
+        phoneNumber: Joi.string().regex(/^[0-9]+$/).min(5).optional(),
         password: Joi.string().optional().min(5).allow(''),
         linkedinId: Joi.string().optional().trim().allow(''),
-        deviceType: Joi.string().required().valid([Config.APP_CONSTANTS.DATABASE.DEVICE_TYPES.IOS, Config.APP_CONSTANTS.DATABASE.DEVICE_TYPES.ANDROID]),
-        deviceToken: Joi.string().required().trim()
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -53,21 +54,23 @@ var verifyOTP =
 {
   method: 'PUT',
   path: '/api/user/verifyOTP',
-  handler: function (request, reply) {
-    var payloadData = request.payload;
-    var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
-    Controller.UserBaseController.verifyOTP(userData, payloadData, function (err, data) {
-      if (err) {
-        reply(UniversalFunctions.sendError(err));
-      } else {
-        reply(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.VERIFY_COMPLETE, data))
-      }
-    });
-  },
   config: {
     auth: 'UserAuth',
     description: 'Verify OTP for User',
-    tags: ['api', 'user'],
+    tags: ['api', 'otp'],
+    handler: function (request, h) {
+      var payloadData = request.payload;
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+        Controller.UserBaseController.verifyOTP(userData, payloadData, function (err, data) {
+          if (err) {
+            reject(UniversalFunctions.sendError(err));
+          } else {
+            resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.VERIFY_COMPLETE, data))
+          }
+        })
+      })
+    },
     validate: {
       headers: UniversalFunctions.authorizationHeaderObj,
       payload: {
@@ -81,30 +84,31 @@ var verifyOTP =
       }
     }
   }
-};
+}
+
 
 var login = {
   method: 'POST',
   path: '/api/user/login',
-  handler: function (request, reply) {
-    var payloadData = request.payload;
-    Controller.UserBaseController.loginUser(payloadData, function (err, data) {
-      if (err) {
-        reply(UniversalFunctions.sendError(err));
-      } else {
-        reply(UniversalFunctions.sendSuccess(null, data))
-      }
-    });
-  },
   config: {
-    description: 'Login Via Phone Number & Password For User',
+    description: 'Login Via Email & Password For User',
     tags: ['api', 'user'],
+    handler: function (request, h) {
+      var payloadData = request.payload;
+      return new Promise((resolve, reject) => {
+        Controller.UserBaseController.loginUser(payloadData, function (err, data) {
+          if (err) {
+            reject(UniversalFunctions.sendError(err));
+          } else {
+            resolve(UniversalFunctions.sendSuccess(null, data))
+          }
+        });
+      })
+    },
     validate: {
       payload: {
-        phoneNumber: Joi.string().regex(/^[0-9]+$/).min(5).required(),
+        emailId: Joi.string().required(),
         password: Joi.string().required().min(5).trim(),
-        deviceType: Joi.string().required().valid([UniversalFunctions.CONFIG.APP_CONSTANTS.DATABASE.DEVICE_TYPES.IOS, UniversalFunctions.CONFIG.APP_CONSTANTS.DATABASE.DEVICE_TYPES.ANDROID]),
-        deviceToken: Joi.string().required().trim()
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -114,31 +118,33 @@ var login = {
       }
     }
   }
-};
+}
+
 
 var linkedinLogin =
 {
   method: 'POST',
   path: '/api/user/loginViaLinkedin',
-  handler: function (request, reply) {
-    var payloadData = request.payload;
-    Controller.UserBaseController.loginViaLinkedin(payloadData, function (err, data) {
-      if (err) {
-        reply(UniversalFunctions.sendError(err));
-      } else {
-        reply(UniversalFunctions.sendSuccess(null, data))
-      }
-    });
-  },
   config: {
     description: 'Login Via Linkedin For Customer',
     tags: ['api', 'customer'],
+    handler: function (request, reply) {
+      var payloadData = request.payload;
+      return new Promise((resolve, reject) => {
+        Controller.UserBaseController.loginViaLinkedin(payloadData, function (err, data) {
+          if (err) {
+            reject(UniversalFunctions.sendError(err));
+          } else {
+            resolve(UniversalFunctions.sendSuccess(null, data))
+          }
+
+        })
+      });
+    },
     validate: {
       payload: {
         linkedinId: Joi.string().required(),
-        deviceType: Joi.string().required().valid([UniversalFunctions.CONFIG.APP_CONSTANTS.DATABASE.DEVICE_TYPES.IOS, UniversalFunctions.CONFIG.APP_CONSTANTS.DATABASE.DEVICE_TYPES.ANDROID]),
-        deviceToken: Joi.string().required().trim(),
-        appVersion: Joi.string().required().trim()
+
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -154,24 +160,26 @@ var resendOTP =
 {
   method: 'PUT',
   path: '/api/user/resendOTP',
-  handler: function (request, reply) {
-    var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
-    Controller.UserBaseController.resendOTP(userData, function (err, data) {
-      if (err) {
-        reply(UniversalFunctions.sendError(err));
-      } else {
-        reply(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.VERIFY_SENT, data))
-      }
-    });
-  },
   config: {
     auth: 'UserAuth',
+    description: 'Resend OTP for Customer',
+    tags: ['api', 'customer'],
+    handler: function (request, h) {
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+        Controller.UserBaseController.resendOTP(userData, function (err, data) {
+          if (err) {
+            reject(UniversalFunctions.sendError(err));
+          } else {
+            resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.VERIFY_SENT, data))
+          }
+        })
+      });
+    },
     validate: {
       headers: UniversalFunctions.authorizationHeaderObj,
       failAction: UniversalFunctions.failActionFunction
     },
-    description: 'Resend OTP for Customer',
-    tags: ['api', 'customer'],
     plugins: {
       'hapi-swagger': {
         responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
@@ -188,17 +196,19 @@ var getOTP = {
     tags: ['api', 'user'],
     handler: function (request, reply) {
       var userData = request.query;
-      Controller.UserBaseController.getOTP(userData, function (error, success) {
-        if (error) {
-          reply(UniversalFunctions.sendError(error));
-        } else {
-          reply(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, success));
-        }
+      return new Promise((resolve, reject) => {
+        Controller.UserBaseController.getOTP(userData, function (error, success) {
+          if (error) {
+            reject(UniversalFunctions.sendError(error));
+          } else {
+            resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, success));
+          }
+        })
       });
     },
     validate: {
       query: {
-        phoneNumber: Joi.string().regex(/^[0-9]+$/).min(5).required()
+        phoneNumber: Joi.string().regex(/^[0-9]+$/).min(5)
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -215,23 +225,26 @@ var accessTokenLogin =
   /* *****************access token login****************** */
   method: 'POST',
   path: '/api/user/accessTokenLogin',
-  handler: function (request, reply) {
-    var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
-    var data = request.payload;
-    Controller.UserBaseController.accessTokenLogin(userData, data, function (err, data) {
-      console.log('%%%%%%%%%%%%%%%', err, data)
-      if (!err) {
-        return reply(UniversalFunctions.sendSuccess(null, data));
-      }
-      else {
-        return reply(UniversalFunctions.sendError(err));
-      }
-    });
-  },
   config: {
     description: 'access token login',
     tags: ['api', 'user'],
     auth: 'UserAuth',
+    handler: function (request, reply) {
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      var data = request.payload;
+      return new Promise((resolve, reject) => {
+        Controller.UserBaseController.accessTokenLogin(userData, data, function (err, data) {
+          console.log('%%%%%%%%%%%%%%%', err, data)
+          if (!err) {
+            return resolve(UniversalFunctions.sendSuccess(null, data));
+          }
+          else {
+            return reject(UniversalFunctions.sendError(err));
+          }
+        });
+
+      })
+    },
     validate: {
       headers: UniversalFunctions.authorizationHeaderObj,
       payload: {
@@ -258,14 +271,15 @@ var logoutCustomer = {
     tags: ['api', 'user'],
     handler: function (request, reply) {
       var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
-      Controller.UserBaseController.logoutCustomer(userData, function (err, data) {
-        if (err) {
-          reply(UniversalFunctions.sendError(err));
-        } else {
-          reply(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.LOGOUT));
-        }
-      });
-
+      return new Promise((resolve, reject) => {
+        Controller.UserBaseController.logoutCustomer(userData, function (err, data) {
+          if (err) {
+            reject(UniversalFunctions.sendError(err));
+          } else {
+            resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.LOGOUT));
+          }
+        });
+      })
     },
     validate: {
       headers: UniversalFunctions.authorizationHeaderObj,
@@ -289,17 +303,15 @@ var getProfile = {
     tags: ['api', 'user'],
     handler: function (request, reply) {
       var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
-      if (userData && userData.id) {
+      return new Promise((resolve, reject) => {
         Controller.UserBaseController.getProfile(userData, function (error, success) {
           if (error) {
-            reply(UniversalFunctions.sendError(error));
+            reject(UniversalFunctions.sendError(error));
           } else {
-            reply(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, success));
+            resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, success));
           }
         });
-      } else {
-        reply(UniversalFunctions.sendError(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.ERROR.INVALID_TOKEN));
-      }
+      })
     },
     validate: {
       headers: UniversalFunctions.authorizationHeaderObj,
@@ -317,21 +329,24 @@ var changePassword =
 {
   method: 'PUT',
   path: '/api/user/changePassword',
-  handler: function (request, reply) {
-    var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
-    Controller.UserBaseController.changePassword(userData, request.payload, function (err, user) {
-      if (!err) {
-        return reply(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.PASSWORD_RESET, user));
-      }
-      else {
-        return reply(UniversalFunctions.sendError(err));
-      }
-    });
-  },
   config: {
     description: 'change Password',
     tags: ['api', 'customer'],
     auth: 'UserAuth',
+    handler: function (request, reply) {
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+
+        Controller.UserBaseController.changePassword(userData, request.payload, function (err, user) {
+          if (!err) {
+            return resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.PASSWORD_RESET, user));
+          }
+          else {
+            return reject(UniversalFunctions.sendError(err));
+          }
+        });
+      })
+    },
     validate: {
       headers: UniversalFunctions.authorizationHeaderObj,
       payload: {
@@ -355,17 +370,19 @@ var forgotPassword = {
     description: 'forgot password',
     tags: ['api', 'user'],
     handler: function (request, reply) {
-      Controller.UserBaseController.forgetPassword(request.payload, function (error, success) {
-        if (error) {
-          reply(UniversalFunctions.sendError(error));
-        } else {
-          reply(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.VERIFY_SENT, success));
-        }
-      });
+      return new Promise((resolve, reject) => {
+        Controller.UserBaseController.forgetPassword(request.payload, function (error, success) {
+          if (error) {
+            reject(UniversalFunctions.sendError(error));
+          } else {
+            resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.VERIFY_SENT, success));
+          }
+        });
+      })
     },
     validate: {
       payload: {
-        phoneNumber: Joi.string().regex(/^[0-9]+$/).min(5).required()
+        phoneNumber: Joi.string().regex(/^[0-9]+$/).min(5)
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -386,18 +403,20 @@ var resetPassword = {
     description: 'reset password',
     tags: ['api', 'user'],
     handler: function (request, reply) {
-      Controller.UserBaseController.resetPassword(request.payload, function (error, success) {
-        if (error) {
-          reply(UniversalFunctions.sendError(error));
-        } else {
-          reply(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.PASSWORD_RESET, success));
-        }
-      });
+      return new Promise((resolve, reject) => {
+        Controller.UserBaseController.resetPassword(request.payload, function (error, success) {
+          if (error) {
+            reject(UniversalFunctions.sendError(error));
+          } else {
+            resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.PASSWORD_RESET, success));
+          }
+        });
+      })
     },
     validate: {
       payload: {
         password: Joi.string().min(6).required().trim(),
-        phoneNumber: Joi.string().regex(/^[0-9]+$/).min(5).required(),
+        phoneNumber: Joi.string().regex(/^[0-9]+$/).min(5),
         OTPCode: Joi.string().required()
       },
       failAction: UniversalFunctions.failActionFunction

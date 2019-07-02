@@ -15,8 +15,8 @@ var moment = MomentRange.extendMoment(Moment);
 var sendError = function (data) {
     console.trace('ERROR OCCURED ', data)
     if (typeof data == 'object' && data.hasOwnProperty('statusCode') && data.hasOwnProperty('customMessage')) {
-        console.log('attaching resposnetype',data.type)
-        var errorToSend = new Boom( data.customMessage,{statusCode:data.statusCode});
+        console.log('attaching resposnetype', data.type)
+        var errorToSend = new Boom(data.customMessage, { statusCode: data.statusCode });
         errorToSend.output.payload.responseType = data.type;
         return errorToSend;
     } else {
@@ -26,9 +26,9 @@ var sendError = function (data) {
                 errorToSend += CONFIG.APP_CONSTANTS.STATUS_MSG.ERROR.DB_ERROR.customMessage;
                 if (data.code = 11000) {
                     var duplicateValue = data.errmsg && data.errmsg.substr(data.errmsg.lastIndexOf('{ : "') + 5);
-                    duplicateValue = duplicateValue.replace('}','');
+                    duplicateValue = duplicateValue.replace('}', '');
                     errorToSend += CONFIG.APP_CONSTANTS.STATUS_MSG.ERROR.DUPLICATE.customMessage + " : " + duplicateValue;
-                    if (data.message.indexOf('customer_1_streetAddress_1_city_1_state_1_country_1_zip_1')>-1){
+                    if (data.message.indexOf('customer_1_streetAddress_1_city_1_state_1_country_1_zip_1') > -1) {
                         errorToSend = CONFIG.APP_CONSTANTS.STATUS_MSG.ERROR.DUPLICATE_ADDRESS.customMessage;
                     }
                 }
@@ -43,7 +43,7 @@ var sendError = function (data) {
             errorToSend = data
         }
         var customErrorMessage = errorToSend;
-        if (typeof customErrorMessage == 'string'){
+        if (typeof customErrorMessage == 'string') {
             if (errorToSend.indexOf("[") > -1) {
                 customErrorMessage = errorToSend.substr(errorToSend.indexOf("["));
             }
@@ -51,17 +51,17 @@ var sendError = function (data) {
             customErrorMessage = customErrorMessage && customErrorMessage.replace('[', '');
             customErrorMessage = customErrorMessage && customErrorMessage.replace(']', '');
         }
-        return new Boom(customErrorMessage,{statusCode:400})
+        return new Boom(customErrorMessage, { statusCode: 400 })
     }
 };
 
 var sendSuccess = function (successMsg, data) {
     successMsg = successMsg || CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT.customMessage;
     if (typeof successMsg == 'object' && successMsg.hasOwnProperty('statusCode') && successMsg.hasOwnProperty('customMessage')) {
-        return {statusCode:successMsg.statusCode, message: successMsg.customMessage, data: data || {}};
+        return { statusCode: successMsg.statusCode, message: successMsg.customMessage, data: data || {} };
 
-    }else {
-        return {statusCode:200, message: successMsg, data: data || {}};
+    } else {
+        return { statusCode: 200, message: successMsg, data: data || {} };
 
     }
 };
@@ -94,12 +94,12 @@ var generateRandomNumber = function () {
 };
 
 var generateRandomAlphabet = function (len) {
-   var charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    var charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
     var randomString = '';
     for (var i = 0; i < len; i++) {
         var randomPoz = Math.floor(Math.random() * charSet.length);
-        randomString += charSet.substring(randomPoz,randomPoz+1);
-        randomString=randomString.toUpperCase();
+        randomString += charSet.substring(randomPoz, randomPoz + 1);
+        randomString = randomString.toUpperCase();
     }
     return randomString;
 }
@@ -110,33 +110,33 @@ var CryptData = function (stringToCrypt) {
 
 var validateLatLongValues = function (lat, long) {
     var valid = true;
-    if (lat < -90 || lat>90){
+    if (lat < -90 || lat > 90) {
         valid = false;
     }
-    if (long <-180 || long > 180){
+    if (long < -180 || long > 180) {
         valid = false;
     }
     return valid;
 };
 
-var validateString = function(str, pattern) {
-    console.log(str, pattern,str.match(pattern));
+var validateString = function (str, pattern) {
+    console.log(str, pattern, str.match(pattern));
 
-    return str.match(pattern) ;
+    return str.match(pattern);
 };
 var verifyEmailFormat = function (string) {
     return validator.isEmail(string)
 };
 var deleteUnnecessaryUserData = function (userObj) {
-    console.log('deleting>>',userObj)
-    delete userObj.__v;
-    delete userObj.password;
-    delete userObj.registrationDate;
-    delete userObj.OTPCode;
-    console.log('deleted',userObj)
+    console.log('deleting>>', userObj)
+    delete userObj["__v"];
+    delete userObj["password"];
+    delete userObj["registrationDate"];
+    delete userObj["OTPCode"];
+    console.log('deleted', userObj)
     return userObj;
 };
-var generateFilenameWithExtension= function generateFilenameWithExtension(oldFilename, newFilename) {
+var generateFilenameWithExtension = function generateFilenameWithExtension(oldFilename, newFilename) {
     var ext = oldFilename.substr((~-oldFilename.lastIndexOf(".") >>> 0) + 2);
     return newFilename + '.' + ext;
 }
@@ -148,8 +148,8 @@ function isEmpty(obj) {
 
     // Assume if it has a length property with a non-zero value
     // that that property is correct.
-    if (obj.length && obj.length > 0)    return false;
-    if (obj.length === 0)  return true;
+    if (obj.length && obj.length > 0) return false;
+    if (obj.length === 0) return true;
 
     // Otherwise, does it have any properties of its own?
     // Note that this doesn't handle
@@ -168,7 +168,7 @@ var getTimestamp = function (inDate) {
     return new Date().toISOString();
 };
 
-var createArray = function(List, keyName) {
+var createArray = function (List, keyName) {
     console.log("create array------>>>>>>>")
     var IdArray = [];
     var keyName = keyName;
@@ -195,7 +195,7 @@ function getRange(startDate, endDate, diffIn) {
 }
 
 module.exports = {
-	generateRandomString: generateRandomString,
+    generateRandomString: generateRandomString,
     CryptData: CryptData,
     CONFIG: CONFIG,
     sendError: sendError,
@@ -203,15 +203,15 @@ module.exports = {
     failActionFunction: failActionFunction,
     authorizationHeaderObj: authorizationHeaderObj,
     //forgetPasswordEmail: forgetPasswordEmail,
-    validateLatLongValues:validateLatLongValues,
-    validateString:validateString,
-    verifyEmailFormat:verifyEmailFormat,
-    deleteUnnecessaryUserData:deleteUnnecessaryUserData,
-    generateFilenameWithExtension:generateFilenameWithExtension,
-    isEmpty:isEmpty,
-    getTimestamp:getTimestamp,
-    generateRandomNumber:generateRandomNumber,
-    createArray:createArray,
-    generateRandomAlphabet:generateRandomAlphabet,
-    getRange:getRange
+    validateLatLongValues: validateLatLongValues,
+    validateString: validateString,
+    verifyEmailFormat: verifyEmailFormat,
+    deleteUnnecessaryUserData: deleteUnnecessaryUserData,
+    generateFilenameWithExtension: generateFilenameWithExtension,
+    isEmpty: isEmpty,
+    getTimestamp: getTimestamp,
+    generateRandomNumber: generateRandomNumber,
+    createArray: createArray,
+    generateRandomAlphabet: generateRandomAlphabet,
+    getRange: getRange
 };

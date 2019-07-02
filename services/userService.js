@@ -26,6 +26,17 @@ var getUser = function (criteria, projection, options, callback) {
     Models.User.find(criteria, projection, options, callback);
 };
 
+var getUserPromise = function (criteria, projection, options) {
+    options.lean = true;
+    return new Promise((resolve, reject) => {
+        Models.User.find(criteria, projection, options, function (err, data) {
+            if (err) reject(err)
+            else resolve(data)
+        });
+
+    })
+};
+
 var getAllGeneratedCodes = function (callback) {
     var criteria = {
         OTPCode: { $ne: null }
@@ -56,5 +67,6 @@ module.exports = {
     createUser: createUser,
     deleteUser: deleteUser,
     getUser: getUser,
-    getAllGeneratedCodes: getAllGeneratedCodes
+    getAllGeneratedCodes: getAllGeneratedCodes,
+    getUserPromise: getUserPromise
 };
