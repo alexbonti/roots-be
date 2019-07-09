@@ -336,15 +336,6 @@ var loginUser = function (payloadData, callback) {
         cb(ERROR.IMP_ERROR)
       }
 
-    },
-    function (cb) {
-      appVersion = {
-        latestIOSVersion: 100,
-        latestAndroidVersion: 100,
-        criticalAndroidVersion: 100,
-        criticalIOSVersion: 100
-      }
-      cb(null);
     }
   ], function (err, data) {
     if (err) {
@@ -353,7 +344,6 @@ var loginUser = function (payloadData, callback) {
       return callback(null, {
         accessToken: accessToken,
         userDetails: UniversalFunctions.deleteUnnecessaryUserData(userFound),
-        appVersion: appVersion
       });
     }
   });
@@ -575,7 +565,7 @@ var getOTP = function (payloadData, callback) {
   });
 };
 
-var accessTokenLogin = function (userData, payloadData, callback) {
+var accessTokenLogin = function (userData, callback) {
   var appVersion;
   var userdata = {};
   var userFound = null;
@@ -590,36 +580,6 @@ var accessTokenLogin = function (userData, payloadData, callback) {
           if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
           else {
             cb()
-          }
-        }
-
-      })
-    },
-    function (cb) {
-      var criteria = {
-        _id: userData._id
-      };
-      var setQuery = {
-        deviceToken: payloadData.deviceToken,
-        deviceType: payloadData.deviceType
-      };
-      Service.UserService.updateUser(criteria, setQuery, { new: true }, function (err, data) {
-        //      updatedUserDetails = data;
-        cb(err, data);
-      });
-
-    },
-    function (cb) {
-      var criteria = {
-        _id: userData._id
-      }
-      Service.UserService.getUser(criteria, {}, {}, function (err, data) {
-        if (err) cb(err)
-        else {
-          if (data.length == 0) cb(ERROR.USER_NOT_FOUND)
-          else {
-            userdata = data[0];
-            cb(null);
           }
         }
 
@@ -652,20 +612,10 @@ var accessTokenLogin = function (userData, payloadData, callback) {
           cb();
         }
       });
-    },
-    function (cb) {
-      appVersion = {
-        latestIOSVersion: 100,
-        latestAndroidVersion: 100,
-        criticalAndroidVersion: 100,
-        criticalIOSVersion: 100
-      };
-      cb(null);
     }], function (err, user) {
       if (!err) return callback(null, {
         accessToken: userdata.accessToken,
         userDetails: UniversalFunctions.deleteUnnecessaryUserData(userFound),
-        appVersion: appVersion
       });
       else return callback(err);
 

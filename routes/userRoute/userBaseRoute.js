@@ -231,9 +231,8 @@ var accessTokenLogin =
     auth: 'UserAuth',
     handler: function (request, reply) {
       var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
-      var data = request.payload;
       return new Promise((resolve, reject) => {
-        Controller.UserBaseController.accessTokenLogin(userData, data, function (err, data) {
+        Controller.UserBaseController.accessTokenLogin(userData, function (err, data) {
           console.log('%%%%%%%%%%%%%%%', err, data)
           if (!err) {
             return resolve(UniversalFunctions.sendSuccess(null, data));
@@ -247,10 +246,6 @@ var accessTokenLogin =
     },
     validate: {
       headers: UniversalFunctions.authorizationHeaderObj,
-      payload: {
-        deviceToken: Joi.string().trim().required(),
-        deviceType: Joi.string().required().valid([UniversalFunctions.CONFIG.APP_CONSTANTS.DATABASE.DEVICE_TYPES.IOS, UniversalFunctions.CONFIG.APP_CONSTANTS.DATABASE.DEVICE_TYPES.ANDROID])
-      },
       failAction: UniversalFunctions.failActionFunction
     },
     plugins: {
