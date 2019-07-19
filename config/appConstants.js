@@ -171,7 +171,13 @@ var STATUS_MSG = {
       statusCode: 400,
       customMessage: "Inavlid email format",
       type: "INVALID_EMAIL_FORMAT"
+    },
+    INVALID_OPPORTUNITY_ID: {
+      statusCode: 400,
+      customMessage: "Invalid opportunity Id",
+      type: "INVALID_OPPORTUNITY_ID"
     }
+
   },
   SUCCESS: {
     DEFAULT: {
@@ -203,7 +209,7 @@ var STATUS_MSG = {
       statusCode: 200,
       customMessage: "Password Reset Successfully",
       type: "PASSWORD_RESET"
-    }
+    },
   }
 };
 

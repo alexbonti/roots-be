@@ -136,6 +136,20 @@ var deleteUnnecessaryUserData = function (userObj) {
     console.log('deleted', userObj)
     return userObj;
 };
+
+var deleteUnnecessaryOpportunityData = function (opportunityObj) {
+    console.log('deleting>>', opportunityObj)
+    delete opportunityObj["__v"];
+    delete opportunityObj["company"];
+    delete opportunityObj["position"];
+    delete opportunityObj["employerEmailId"];
+    delete opportunityObj["publishDate"];
+    delete opportunityObj["jobType"];
+    delete opportunityObj["location"];
+    delete opportunityObj["content"];
+    console.log('deleted', opportunityObj)
+    return opportunityObj;
+};
 var generateFilenameWithExtension = function generateFilenameWithExtension(oldFilename, newFilename) {
     var ext = oldFilename.substr((~-oldFilename.lastIndexOf(".") >>> 0) + 2);
     return newFilename + '.' + ext;
@@ -202,6 +216,7 @@ module.exports = {
     sendSuccess: sendSuccess,
     failActionFunction: failActionFunction,
     authorizationHeaderObj: authorizationHeaderObj,
+    deleteUnnecessaryOpportunityData: deleteUnnecessaryOpportunityData,
     //forgetPasswordEmail: forgetPasswordEmail,
     validateLatLongValues: validateLatLongValues,
     validateString: validateString,
