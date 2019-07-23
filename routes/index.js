@@ -7,5 +7,6 @@ var DemoBaseRoute = require('./demoRoute/demoBaseRoute');
 var UserBaseRoute = require('./userRoute/userBaseRoute');
 var DemoBaseRouteTest = require('./demoRoute/demoBaseRouteTest');
 var JobRoute = require('./demoRoute/jobRoute');
-var APIs = [].concat(DemoBaseRoute, UserBaseRoute, DemoBaseRouteTest, JobRoute);
+var EmployerBaseRoute = require('./employerRoute/employerBaseRoute');
+var APIs = [].concat(DemoBaseRoute, UserBaseRoute, EmployerBaseRoute, DemoBaseRouteTest, JobRoute);
 module.exports = APIs;

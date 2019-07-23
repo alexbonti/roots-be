@@ -7,4 +7,5 @@ module.exports = {
   UserBaseController: require('./userController/userBaseController'),
   OpportunityController : require('./demoController/opportunityController'),
   DemoBaseControllerTest : require('./demoController/demoBaseControllerTest'),
+  EmployerBaseController : require("./employerController/employerBaseController"),
 };
