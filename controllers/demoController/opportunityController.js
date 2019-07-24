@@ -32,7 +32,7 @@ var createOpportunity = function (userData,payloadData, callback) {
         codeUpdatedAt: 0
       };
       var options = { lean: true };
-      Service.UserService.getUser(query, projection, options, function (err, data) {
+      Service.EmployerService.getEmployer(query, projection, options, function (err, data) {
         if (err) {
           cb(err);
         } else {
@@ -105,7 +105,7 @@ var changeOpportunity = function (userData, payloadData, callbackRoute) {
         _id: userData._id
       };
       var options = { lean: true };
-      Service.UserService.getUser(query, {}, options, function (err, data) {
+      Service.EmployerService.getEmployer(query, {}, options, function (err, data) {
         if (err) {
           cb(err);
         } else {
@@ -180,7 +180,7 @@ var deleteOpportunity = function (userData, payloadData, callbackRoute) {
         _id: userData._id
       };
       var options = { lean: true };
-      Service.UserService.getUser(query, {}, options, function (err, data) {
+      Service.EmployerService.getEmployer(query, {}, options, function (err, data) {
         if (err) {
           cb(err);
         } else {
