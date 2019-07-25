@@ -6,16 +6,16 @@ var Joi = require("joi");
 var Config = require("../../config");
 var Controller = require("../../controllers");
 
-var demoApi = {
+var calcApi = {
   method: "POST",
-  path: "/api/demo/demoApi",
+  path: "/api/demo/calcApi",
   config: {
-    description: "demo api",
+    description: "calculator",
     tags: ["api", "demo"],
     handler: function(request, h) {
       var payloadData = request.payload;
       return new Promise((resolve, reject) => {
-        Controller.DemoBaseController.demoFunction(payloadData, function(
+        Controller.DemoBaseControllerTest.calcFunction(payloadData, function(
           err,
           data
         ) {
@@ -32,7 +32,8 @@ var demoApi = {
     },
     validate: {
       payload: {
-        message: Joi.string().required()
+        number1 : Joi.number().required(),
+        number2 : Joi.number().required()
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -45,5 +46,5 @@ var demoApi = {
   }
 };
 
-var DemoBaseRoute = [demoApi];
-module.exports = DemoBaseRoute;
+var DemoBaseRouteTest = [calcApi];
+module.exports = DemoBaseRouteTest;

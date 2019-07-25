@@ -4,7 +4,7 @@
 
 "use strict";
 var SOCIAL = {
-  FACEBOOK: "FACEBOOK"
+  LINKEDIN: "LINKEDIN"
 };
 var swaggerDefaultResponseMessages = [
   { code: 200, message: "OK" },
@@ -19,7 +19,8 @@ var DATABASE = {
     IOS: "IOS"
   },
   USER_ROLES: {
-    USER: "USER"
+    USER: "USER",
+    EMPLOYER: "EMPLOYER"
   }
 };
 
@@ -35,11 +36,11 @@ var STATUS_MSG = {
       customMessage: "You are already registered with us",
       type: "USER_ALREADY_REGISTERED"
     },
-    FACEBOOK_ID_PASSWORD_ERROR: {
+    LINKEDIN_ID_PASSWORD_ERROR: {
       statusCode: 400,
       customMessage:
-        "Only one field should be filled at a time, either facebookId or password",
-      type: "FACEBOOK_ID_PASSWORD_ERROR"
+        "Only one field should be filled at a time, either lindkedinId or password",
+      type: "LINKEDIN_ID_PASSWORD_ERROR"
     },
     PASSWORD_REQUIRED: {
       statusCode: 400,
@@ -104,13 +105,13 @@ var STATUS_MSG = {
     NOT_REGISTERED: {
       statusCode: 400,
       customMessage:
-        "You are not registered with YapApp. Kindly register yourself to avail services!",
+        "You are not registered. Kindly register yourself to avail services!",
       type: "NOT_REGISTERED"
     },
-    FACEBOOK_ID_NOT_FOUND: {
+    LINKEDIN_ID_NOT_FOUND: {
       statusCode: 400,
-      customMessage: "Facebook Id Not Found",
-      type: "FACEBOOK_ID_NOT_FOUND"
+      customMessage: "Linkedin Id Not Found",
+      type: "LINKEDIN_ID_NOT_FOUND"
     },
     PHONE_VERIFICATION_COMPLETE: {
       statusCode: 400,
@@ -171,7 +172,13 @@ var STATUS_MSG = {
       statusCode: 400,
       customMessage: "Inavlid email format",
       type: "INVALID_EMAIL_FORMAT"
+    },
+    INVALID_OPPORTUNITY_ID: {
+      statusCode: 400,
+      customMessage: "Invalid opportunity Id",
+      type: "INVALID_OPPORTUNITY_ID"
     }
+
   },
   SUCCESS: {
     DEFAULT: {
@@ -203,7 +210,7 @@ var STATUS_MSG = {
       statusCode: 200,
       customMessage: "Password Reset Successfully",
       type: "PASSWORD_RESET"
-    }
+    },
   }
 };
 
@@ -218,7 +225,7 @@ var TIME_UNITS = {
   DAYS: "days"
 };
 
-const CUSTOM_ERROR_404 = function(msg) {
+const CUSTOM_ERROR_404 = function (msg) {
   return {
     statusCode: 404,
     customMessage: msg + " NOT FOUND",
@@ -226,7 +233,7 @@ const CUSTOM_ERROR_404 = function(msg) {
   };
 };
 
-const CUSTOM_ERROR = function(msg, statusCode) {
+const CUSTOM_ERROR = function (msg, statusCode) {
   return {
     statusCode: statusCode || 400,
     customMessage: msg
