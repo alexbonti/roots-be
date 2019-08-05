@@ -3,6 +3,7 @@ var Controller = require('../../controllers');
 var Joi = require('joi');
 var Config = require('../../config');
 
+//Register Employer
 var employerRegister = {
   method: 'POST',
   path: '/api/employer/register',
@@ -46,6 +47,7 @@ var employerRegister = {
   }
 }
 
+//verifies OTP for email verification
 var verifyOTP =
 {
   method: 'PUT',
@@ -83,7 +85,7 @@ var verifyOTP =
   }
 }
 
-
+//login Employer
 var login = {
   method: 'POST',
   path: '/api/employer/login',
@@ -117,7 +119,7 @@ var login = {
   }
 }
 
-
+//Resends the OTP
 var resendOTP =
 {
   method: 'PUT',
@@ -150,6 +152,7 @@ var resendOTP =
   }
 };
 
+//Request OTP
 var getOTP = {
   method: 'GET',
   path: '/api/employer/getOTP',
@@ -182,6 +185,7 @@ var getOTP = {
   }
 };
 
+//Login via accessToken
 var accessTokenLogin =
 {
   /* *****************access token login****************** */
@@ -219,6 +223,7 @@ var accessTokenLogin =
 
 }
 
+//Logout
 var logoutCustomer = {
   method: 'PUT',
   path: '/api/employer/logout',
@@ -251,6 +256,7 @@ var logoutCustomer = {
   }
 };
 
+//Get profile information via accesstoken
 var getProfile = {
   method: 'GET',
   path: '/api/employer/getProfile',
@@ -282,6 +288,7 @@ var getProfile = {
   }
 };
 
+//change password via old password and accessToken
 var changePassword =
 {
   method: 'PUT',
@@ -320,6 +327,7 @@ var changePassword =
   }
 }
 
+//Reset password via phonenumber
 var forgotPassword = {
   method: 'POST',
   path: '/api/employer/forgotPassword',
@@ -352,6 +360,7 @@ var forgotPassword = {
   }
 };
 
+//Reset password verification
 var resetPassword = {
 
   method: 'POST',

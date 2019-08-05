@@ -177,7 +177,18 @@ var STATUS_MSG = {
       statusCode: 400,
       customMessage: "Invalid opportunity Id",
       type: "INVALID_OPPORTUNITY_ID"
+    },
+    INVALID_JOB_APPLICATION: {
+      statusCode: 400,
+      customMessage: "Job application already exists",
+      type: "INVALID_JOB_APPLICATION"
+    },
+    INVALID_JOB_DATA:{
+      statusCode: 400,
+      customMessage: "Job does not exist",
+      type: "INVALID_JOB_DATA"
     }
+
 
   },
   SUCCESS: {
@@ -211,6 +222,11 @@ var STATUS_MSG = {
       customMessage: "Password Reset Successfully",
       type: "PASSWORD_RESET"
     },
+    NO_JOB_APPLICATIONS:{
+      statusCode: 200,
+      customMessage: "No applications for this job yet",
+      type: "NO_JOB_APPLICATIONS"
+    }
   }
 };
 

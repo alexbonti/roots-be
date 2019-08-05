@@ -3,6 +3,7 @@ var Controller = require('../../controllers');
 var Joi = require('joi');
 var Config = require('../../config');
 
+//Create new job opportunity as employer via accessToken
 var postOpportunities = {
   method: 'POST',
   path: '/api/jobs/opportunities',
@@ -45,6 +46,7 @@ var postOpportunities = {
   }
 }
 
+// Retrieves all jobOpportunities
 var viewOpportunities = {
   method: 'GET',
   path: '/api/jobs/viewOpportunities',
@@ -71,7 +73,7 @@ var viewOpportunities = {
 };
 
 
-
+//Update job opportunity poster by the employer via accesstoken
 var updateOpportunity =
 {
   method: 'PUT',
@@ -113,7 +115,7 @@ var updateOpportunity =
   }
 }
 
-
+//Soft Delete job opportunity posted
 var deleteOpportunity =
 {
   method: 'DELETE',
