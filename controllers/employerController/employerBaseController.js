@@ -6,6 +6,7 @@
  var ERROR = UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.ERROR;
  var _ = require('underscore');
  
+ //create/register as a new employer
  var createEmployer = function (payloadData, callback) {
    console.log('payload:', payloadData);
    var accessToken = null;
@@ -59,7 +60,6 @@
      function (cb) {
        //Insert Into DB
        dataToSave.OTPCode = uniqueCode;
-       // dataToSave.emailId = payloadData.emailId;
        dataToSave.registrationDate = new Date().toISOString();
        Service.EmployerService.createEmployer(dataToSave, function (err, customerDataFromDB) {
          console.log('hello', err, customerDataFromDB)
@@ -77,17 +77,7 @@
          }
        })
      },
-     // function (cb) {
-     //     //Send SMS to Employer
-     //     if (customerData) {
-     //         NotificationManager.sendSMSToEmployer(uniqueCode, dataToSave.countryCode, dataToSave.mobileNo, function (err, data) {
-     //             cb();
-     //         })
-     //     } else {
-     //         cb(ERROR.IMP_ERROR)
-     //     }
-     //
-     // },
+
      function (cb) {
        //Set Access Token
        if (customerData) {
@@ -120,6 +110,7 @@
    });
  };
  
+ //verifies OTP for email verification
  var verifyOTP = function (employerData, payloadData, callback) {
    var customerData;
    async.series([
@@ -183,6 +174,7 @@
    });
  }
  
+ //Login Employer
  var loginEmployer = function (payloadData, callback) {
    var employerFound = false;
    var accessToken = null;
@@ -304,6 +296,7 @@
    });
  };
  
+ //Resends the OTP
  var resendOTP = function (employerData, callback) {
    /*
     Create a Unique 4 digit code
@@ -369,6 +362,7 @@
    })
  };
  
+ //Request OTP
  var getOTP = function (payloadData, callback) {
    var query = {
      emailId: payloadData.emailId
@@ -393,6 +387,7 @@
    });
  };
  
+ //Login via accessToken
  var accessTokenLogin = function (employerData, callback) {
    var appVersion;
    var employerdata = {};
@@ -449,6 +444,7 @@
      });
  }
  
+ //Logout
  var logoutCustomer = function (employerData, callbackRoute) {
    console.log(employerData)
    async.series([
@@ -490,6 +486,7 @@
      });
  };
  
+ //Get profile information via accesstoken
  var getProfile = function (employerData, callback) {
    var customerData;
    async.series([
@@ -523,6 +520,7 @@
    })
  }
  
+ //change password via old password and accessToken
  var changePassword = function (employerData, payloadData, callbackRoute) {
    var oldPassword = UniversalFunctions.CryptData(payloadData.oldPassword);
    var newPassword = UniversalFunctions.CryptData(payloadData.newPassword);
@@ -598,6 +596,7 @@
      });
  }
  
+ //Reset password via phonenumber
  var forgetPassword = function (payloadData, callback) {
    var dataFound = null;
    var code;
@@ -708,6 +707,7 @@
      });
  }
  
+ //Reset password verification
  var resetPassword = function (payloadData, callbackRoute) {
    console.log("hello")
    var foundData;

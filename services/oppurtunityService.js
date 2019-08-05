@@ -7,11 +7,13 @@ var createOpportunity = function (objToSave, callback) {
     new Models.Opportunities(objToSave).save(callback)
 };
 
+//Get opportunity from DB
 var getOpportunity = function (criteria, projection, options, callback) {
     options.lean = true;
     Models.Opportunities.find(criteria, projection, options, callback);
 };
 
+//Update opportunity in DB
 var updateOpportunity = function (criteria, dataToSet, options, callback) {
     options.lean = true;
     options.new = true;

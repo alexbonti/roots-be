@@ -2,12 +2,6 @@
 
  var Models = require('../models');
  
- 
- var updateEmployer = function (criteria, dataToSet, options, callback) {
-     options.lean = true;
-     options.new = true;
-     Models.Employer.findOneAndUpdate(criteria, dataToSet, options, callback);
- };
  //Insert Employer in DB
  var createEmployer = function (objToSave, callback) {
      new Models.Employer(objToSave).save(callback)
@@ -23,6 +17,14 @@
      Models.Employer.find(criteria, projection, options, callback);
  };
  
+ //Update Employers in DB
+ var updateEmployer = function (criteria, dataToSet, options, callback) {
+    options.lean = true;
+    options.new = true;
+    Models.Employer.findOneAndUpdate(criteria, dataToSet, options, callback);
+};
+
+
  var getEmployerPromise = function (criteria, projection, options) {
      options.lean = true;
      return new Promise((resolve, reject) => {
