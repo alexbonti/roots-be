@@ -54,16 +54,16 @@ var createOpportunity = function (userData,payloadData, callback) {
         codeUpdatedAt: 0,
       };
       var options = { lean: true };
-      Service.OpportunityService.getOpportunity({"active" : true, employerId: customerData._id ,company : payloadData.company, position : payloadData.position, location : payloadData.location, content : payloadData.content}, projection, options, function (err, data) {
+      Service.OpportunityService.getOpportunity({active : true, employerId: customerData._id ,company : payloadData.company, position : payloadData.position, jobType : payloadData.jobType, location : payloadData.location, content : payloadData.content}, projection, options, function (err, data) {
         if (err) {
           cb(err);
         } else {
-            if(data)
+            if(data == null || data.length == 0)
             {
-              cb(ERROR.INVALID_JOB_APPLICATION);
+              cb()
             }
             else{
-              cb()
+              cb(ERROR.INVALID_JOB_APPLICATION);  
             }
         }
       });
