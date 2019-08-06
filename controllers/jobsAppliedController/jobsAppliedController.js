@@ -246,44 +246,44 @@ var viewJobsPosted = function (userData, callback) {
           }
         });
       },
-
-        function(cb){
-
-          var asyncTasks = []
-          jobsData.forEach(function(job){
-            asyncTasks.push(function(callback){
-              Service.JobsAppliedService.getJobs({jobId : job._id, active : true}, {}, { lean : true} , function(err, data){
-                if(err)
-                {
-                  cb(err)
-                }
-                else{
-                  
-                  numberOfApplicants.push([job._id,data.length]);
-                  console.log(job._id , data.length)
-                }
-              })
-              callback();
-            });
+      function(cb){
+        if (jobsData) {
+          var taskInParallel = [];
+          for (var key in jobsData) {
+              (function (key) {
+                  taskInParallel.push((function (key) {
+                      return function (embeddedCB) {
+                          //TODO
+                          Service.JobsAppliedService.getJobs({jobId : jobsData[key]._id, active : true}, {}, { lean : true} , function(err, data){
+                            if(err)
+                            {
+                              embeddedCB(err)
+                            }
+                            else{
+                              
+                              jobsData[key].numberOfApplications = data.length;
+                              embeddedCB()
+                            }
+                          })
+                      }
+                  })(key))
+              }(key));
+          }
+          async.parallel(taskInParallel, function (err, result) {
+              cb(null);
           });
-
-          asyncTasks.push(function(callback){
-            setTimeout(function(){
-              callback();
-            }, 1000);
-          });
-          async.parallel(asyncTasks, function(){
-            cb();
-          });
-      },
+      }
+      else {
+          cb()
+      }
+      }
     ],
     function (error, result) {
       if (error) {
         return callback(error);
       } else {
         return callback(null, {
-          jobsData: jobsData,
-          numberOfApplicants : numberOfApplicants
+          jobsData: jobsData
         });
       }
     });
