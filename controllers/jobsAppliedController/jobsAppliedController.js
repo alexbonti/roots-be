@@ -178,8 +178,7 @@ var viewAppliedJobs = function (userData, callback) {
         };
 
         Service.JobsAppliedService.getPopulatedJobs({
-          candidateId: userData._id,
-          active: true
+          candidateId: userData._id
         }, projection, populate, {}, {}, function (err, data) {
           if (err) {
             cb(err);
