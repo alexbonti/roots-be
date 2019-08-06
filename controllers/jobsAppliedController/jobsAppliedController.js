@@ -506,6 +506,118 @@ var withdrawJob = function (userData, payloadData, callbackRoute) {
 
 
 
+//Reject an applicant by opportunityId and candidateId via accesstoken
+var rejectApplicant = function (userData, payloadData, callbackRoute) {
+  var opportunityData;
+  async.series([
+      function (cb) {
+        var query = {
+          _id: userData._id
+        };
+        var options = {
+          lean: true
+        };
+        Service.EmployerService.getEmployer(query, {}, options, function (err, data) {
+          if (err) {
+            cb(err);
+          } else {
+            if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+            else cb()
+          }
+        });
+      },
+      function (cb) {
+        var projection = {
+          __v: 0,
+          password: 0,
+          accessToken: 0,
+          codeUpdatedAt: 0,
+        };
+        var options = {
+          lean: true
+        };
+        Service.OpportunityService.getOpportunity({
+          _id: payloadData.opportunityId,
+          active: true,
+          employerId : userData._id
+        }, projection, options, function (err, data) {
+          if (err) {
+              cb(err);
+          } else {
+            if (data == null || data.length == 0) {
+              cb(ERROR.INVALID_OPPORTUNITY_ID)
+            } else {
+              cb()
+            }
+          }
+        });
+      },
+      function (cb) {
+        var projection = {
+          __v: 0,
+          accessToken: 0,
+          codeUpdatedAt: 0
+        };
+
+        var options = {
+          lean: true
+        };
+        Service.JobsAppliedService.getJobs({
+          jobId: payloadData.opportunityId,
+          candidateId: payloadData.candidateId,
+          active: true
+        }, projection, options, function (err, data) {
+          if (err) {
+            cb(err);
+          } else {
+            if (data == null || data.length == 0) {
+              cb(ERROR.INVALID_JOB_DATA)
+            } else {
+              opportunityData = data && data[0] || null;
+              cb();
+            }
+          }
+        });
+      },
+
+      function (callback) {
+        var dataToUpdate = {
+          $set: {
+            'active': false,
+            'withdrawDate': null,
+            'applicationStatus': "Unsuccessful Application"
+          }
+        };
+        var condition = {
+          _id: opportunityData._id,
+          candidateId: payloadData.candidateId,
+          active: true
+        };  
+        Service.JobsAppliedService.updateJobs(condition, dataToUpdate, {}, function (err, opportunity) {
+          console.log("opportunityData-------->>>" + JSON.stringify(opportunity));
+          if (err) {
+            callback(err);
+          } else {
+            if (!opportunity || opportunity.length == 0) {
+              callback(ERROR.NOT_FOUND);
+            } else {
+              callback(null);
+            }
+          }
+        });
+      }
+    ],
+    function (error, result) {
+      if (error) {
+        return callbackRoute(error);
+      } else {
+        return callbackRoute(null);
+      }
+    });
+}
+
+
+
 
 
 module.exports = {
@@ -513,5 +625,6 @@ module.exports = {
   withdrawJob: withdrawJob,
   viewAppliedJobs: viewAppliedJobs,
   viewJobApplicants: viewJobApplicants,
-  viewJobsPosted: viewJobsPosted
+  viewJobsPosted: viewJobsPosted,
+  rejectApplicant : rejectApplicant
 };

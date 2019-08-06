@@ -192,12 +192,53 @@ var withdrawJob =
 
 
 
+//Reject an applicant by opportunityId and candidateId via accesstoken
+var rejectApplicant =
+{
+  method: 'DELETE',
+  path: '/api/employer/rejectapplication',
+  config: {
+    description: 'Reject an applicant for a specific job',
+    tags: ['api', 'rejectapplicant'],
+    auth: 'UserAuth',
+    handler: function (request, reply) {
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+
+        Controller.JobsAppliedController.rejectApplicant(userData, request.payload, function (err, opportunity) {
+          if (!err) {
+            return resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, opportunity));
+          }
+          else {
+            return reject(UniversalFunctions.sendError(err));
+          }
+        });
+      })
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      payload: {
+        opportunityId : Joi.string().required(),
+        candidateId : Joi.string().required()
+      },
+      failAction: UniversalFunctions.failActionFunction
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+}
+
+
 
 var JobsAppliedRoute = [
     applyJob,
     withdrawJob,
     viewJobsApplied,
     viewJobApplicants,
-    viewJobsPosted
+    viewJobsPosted,
+    rejectApplicant
    ]
  module.exports = JobsAppliedRoute;
