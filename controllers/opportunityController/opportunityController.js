@@ -54,7 +54,7 @@ var createOpportunity = function (userData,payloadData, callback) {
         codeUpdatedAt: 0,
       };
       var options = { lean: true };
-      Service.OpportunityService.getOpportunity({active : true, employerId: customerData._id ,company : payloadData.company, position : payloadData.position, jobType : payloadData.jobType, location : payloadData.location, content : payloadData.content}, projection, options, function (err, data) {
+      Service.OpportunityService.getOpportunity({active : true, employerId: customerData._id ,company : payloadData.company, positionTitle : payloadData.positionTitle, employmentType : payloadData.employmentType, location : payloadData.location, description : payloadData.description, seniority : payloadData.seniority, startDate : payloadData.startDate, endDate : payloadData.endDate, industryField : payloadData.industryField }, projection, options, function (err, data) {
         if (err) {
           cb(err);
         } else {
@@ -149,13 +149,9 @@ var changeOpportunity = function (userData, payloadData, callbackRoute) {
       var options = { lean: true };
       Service.OpportunityService.getOpportunity({_id: payloadData.opportunityId , employerId : userData._id }, projection, options, function (err, data) {
         if (err) {
-          if(data == null || data.length == 0){
-            cb(ERROR.INVALID_OPPORTUNITY_ID)
-          }
-          else {
             cb(err);
-          }
-        } else {
+        } 
+        else {
           if(data == null || data.length == 0)
           {
             cb(ERROR.INVALID_OPPORTUNITY_ID)
@@ -172,7 +168,7 @@ var changeOpportunity = function (userData, payloadData, callbackRoute) {
     function (callback) {
       console.log(">>>>>>",opportunityData);
         var date = Date.now();
-        var dataToUpdate = { $set: { 'position': payloadData.position, 'jobType': payloadData.jobType ,'location': payloadData.location,'content':payloadData.content,'publishDate': date } };
+        var dataToUpdate = { $set: { 'positionTitle': payloadData.position, 'employmentType': payloadData.employmentType ,'location': payloadData.location,'description':payloadData.description,'publishDate': date, 'skills': payloadData.skills , 'seniority' : payloadData.seniority , 'startDate' : payloadData.startDate, 'endDate' : payloadData.endDate, 'industryField' : payloadData.industryField  } };
         var condition = { employerId: userData._id , _id : payloadData.opportunityId };
         Service.OpportunityService.updateOpportunity(condition, dataToUpdate, {}, function (err, opportunity) {
           console.log("opportunityData-------->>>" + JSON.stringify(opportunity));
