@@ -178,8 +178,7 @@ var viewAppliedJobs = function (userData, callback) {
         };
 
         Service.JobsAppliedService.getPopulatedJobs({
-          candidateId: userData._id,
-          active: true
+          candidateId: userData._id
         }, projection, populate, {}, {}, function (err, data) {
           if (err) {
             cb(err);
@@ -246,44 +245,44 @@ var viewJobsPosted = function (userData, callback) {
           }
         });
       },
-
-        function(cb){
-
-          var asyncTasks = []
-          jobsData.forEach(function(job){
-            asyncTasks.push(function(callback){
-              Service.JobsAppliedService.getJobs({jobId : job._id, active : true}, {}, { lean : true} , function(err, data){
-                if(err)
-                {
-                  cb(err)
-                }
-                else{
-                  
-                  numberOfApplicants.push([job._id,data.length]);
-                  console.log(job._id , data.length)
-                }
-              })
-              callback();
-            });
+      function(cb){
+        if (jobsData) {
+          var taskInParallel = [];
+          for (var key in jobsData) {
+              (function (key) {
+                  taskInParallel.push((function (key) {
+                      return function (embeddedCB) {
+                          //TODO
+                          Service.JobsAppliedService.getJobs({jobId : jobsData[key]._id, active : true}, {}, { lean : true} , function(err, data){
+                            if(err)
+                            {
+                              embeddedCB(err)
+                            }
+                            else{
+                              
+                              jobsData[key].numberOfApplications = data.length;
+                              embeddedCB()
+                            }
+                          })
+                      }
+                  })(key))
+              }(key));
+          }
+          async.parallel(taskInParallel, function (err, result) {
+              cb(null);
           });
-
-          asyncTasks.push(function(callback){
-            setTimeout(function(){
-              callback();
-            }, 1000);
-          });
-          async.parallel(asyncTasks, function(){
-            cb();
-          });
-      },
+      }
+      else {
+          cb()
+      }
+      }
     ],
     function (error, result) {
       if (error) {
         return callback(error);
       } else {
         return callback(null, {
-          jobsData: jobsData,
-          numberOfApplicants : numberOfApplicants
+          jobsData: jobsData
         });
       }
     });
@@ -506,6 +505,118 @@ var withdrawJob = function (userData, payloadData, callbackRoute) {
 
 
 
+//Reject an applicant by opportunityId and candidateId via accesstoken
+var rejectApplicant = function (userData, payloadData, callbackRoute) {
+  var opportunityData;
+  async.series([
+      function (cb) {
+        var query = {
+          _id: userData._id
+        };
+        var options = {
+          lean: true
+        };
+        Service.EmployerService.getEmployer(query, {}, options, function (err, data) {
+          if (err) {
+            cb(err);
+          } else {
+            if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+            else cb()
+          }
+        });
+      },
+      function (cb) {
+        var projection = {
+          __v: 0,
+          password: 0,
+          accessToken: 0,
+          codeUpdatedAt: 0,
+        };
+        var options = {
+          lean: true
+        };
+        Service.OpportunityService.getOpportunity({
+          _id: payloadData.opportunityId,
+          active: true,
+          employerId : userData._id
+        }, projection, options, function (err, data) {
+          if (err) {
+              cb(err);
+          } else {
+            if (data == null || data.length == 0) {
+              cb(ERROR.INVALID_OPPORTUNITY_ID)
+            } else {
+              cb()
+            }
+          }
+        });
+      },
+      function (cb) {
+        var projection = {
+          __v: 0,
+          accessToken: 0,
+          codeUpdatedAt: 0
+        };
+
+        var options = {
+          lean: true
+        };
+        Service.JobsAppliedService.getJobs({
+          jobId: payloadData.opportunityId,
+          candidateId: payloadData.candidateId,
+          active: true
+        }, projection, options, function (err, data) {
+          if (err) {
+            cb(err);
+          } else {
+            if (data == null || data.length == 0) {
+              cb(ERROR.INVALID_JOB_DATA)
+            } else {
+              opportunityData = data && data[0] || null;
+              cb();
+            }
+          }
+        });
+      },
+
+      function (callback) {
+        var dataToUpdate = {
+          $set: {
+            'active': false,
+            'withdrawDate': null,
+            'applicationStatus': "Unsuccessful Application"
+          }
+        };
+        var condition = {
+          _id: opportunityData._id,
+          candidateId: payloadData.candidateId,
+          active: true
+        };  
+        Service.JobsAppliedService.updateJobs(condition, dataToUpdate, {}, function (err, opportunity) {
+          console.log("opportunityData-------->>>" + JSON.stringify(opportunity));
+          if (err) {
+            callback(err);
+          } else {
+            if (!opportunity || opportunity.length == 0) {
+              callback(ERROR.NOT_FOUND);
+            } else {
+              callback(null);
+            }
+          }
+        });
+      }
+    ],
+    function (error, result) {
+      if (error) {
+        return callbackRoute(error);
+      } else {
+        return callbackRoute(null);
+      }
+    });
+}
+
+
+
 
 
 module.exports = {
@@ -513,5 +624,6 @@ module.exports = {
   withdrawJob: withdrawJob,
   viewAppliedJobs: viewAppliedJobs,
   viewJobApplicants: viewJobApplicants,
-  viewJobsPosted: viewJobsPosted
+  viewJobsPosted: viewJobsPosted,
+  rejectApplicant : rejectApplicant
 };
