@@ -161,7 +161,7 @@ var viewAppliedJobs = function (userData, callback) {
       },
       function (cb) {
         var path = "jobId";
-        var select = "company position publishDate jobType location";
+        var select = "company positionTitle employmentType skills seniority startDate endDate location description";
         var populate = {
           path: path,
           match: {},
@@ -259,7 +259,6 @@ var viewJobsPosted = function (userData, callback) {
                               embeddedCB(err)
                             }
                             else{
-                              
                               jobsData[key].numberOfApplications = data.length;
                               embeddedCB()
                             }
@@ -339,7 +338,7 @@ var viewJobApplicants = function (userData, payloadData, callback) {
       },
       function (cb) {
         var path = "jobId candidateId";
-        var select = "company position publishDate jobType location employerId first_name last_name emailId linkedinId";
+        var select = "company positionTitle startDate endDate employmentType location employerId first_name last_name emailId linkedinId";
         var populate = {
           path: path,
           match: {},
