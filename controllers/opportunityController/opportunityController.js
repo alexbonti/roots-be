@@ -54,7 +54,7 @@ var createOpportunity = function (userData,payloadData, callback) {
         codeUpdatedAt: 0,
       };
       var options = { lean: true };
-      Service.OpportunityService.getOpportunity({active : true, employerId: customerData._id ,company : payloadData.company, positionTitle : payloadData.positionTitle, employmentType : payloadData.employmentType, location : payloadData.location, description : payloadData.description, seniority : payloadData.seniority, startDate : payloadData.startDate, endDate : payloadData.endDate, industryField : payloadData.industryField }, projection, options, function (err, data) {
+      Service.OpportunityService.getOpportunity({active : true, employerId: customerData._id ,company : customerData.companyId, positionTitle : payloadData.positionTitle, employmentType : payloadData.employmentType, location : payloadData.location, description : payloadData.description, seniority : payloadData.seniority, startDate : payloadData.startDate, endDate : payloadData.endDate, industryField : payloadData.industryField }, projection, options, function (err, data) {
         if (err) {
           cb(err);
         } else {
@@ -68,18 +68,28 @@ var createOpportunity = function (userData,payloadData, callback) {
         }
       });
     },
+
+    
     function (cb) {
-      dataToSave.employerId = customerData._id;
-      dataToSave.publishDate = new Date().toISOString();
-      Service.OpportunityService.createOpportunity(dataToSave, function (err, opportunityDataFromDB) {
-        console.log('hello', err, opportunityDataFromDB)
-        if (err) {
-          cb(err)
-        } else {
-          opportunityData = opportunityDataFromDB;
-          cb();
-        }
-      })
+      if(customerData.companyId == null || customerData.companyId == "undefined" )
+      {
+        cb(ERROR.INVALID_COMPANY_ID)
+      }
+      else{
+        dataToSave.employerId = customerData._id;
+        dataToSave.company = customerData.companyId;
+        dataToSave.publishDate = new Date().toISOString();
+        Service.OpportunityService.createOpportunity(dataToSave, function (err, opportunityDataFromDB) {
+          console.log('hello', err, opportunityDataFromDB)
+          if (err) {
+            cb(err)
+          } else {
+            opportunityData = opportunityDataFromDB;
+            cb();
+          }
+        })
+      }
+      
     }    
   ], function (err, data, user) {
     if (err) {

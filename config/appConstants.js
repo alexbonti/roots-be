@@ -187,6 +187,21 @@ var STATUS_MSG = {
       statusCode: 400,
       customMessage: "Job does not exist",
       type: "INVALID_JOB_DATA"
+    },
+    INVALID_COMPANY_ID:{
+      statusCode: 400,
+      customMessage: "Company does not exist or is not associated with your account",
+      type: "INVALID_COMPANY_ID"
+    },
+    COMPANY_ALREADY_EXISTS:{
+      statusCode: 400,
+      customMessage: "Company with the same name already exists",
+      type: "COMPANY_ALREADY_EXISTS"
+    },
+    COMPANY_ALREADY_ASSIGNED:{
+      statusCode: 400,
+      customMessage: "Employer can have only one company",
+      type: "COMPANY_ALREADY_ASSIGNED"
     }
 
 

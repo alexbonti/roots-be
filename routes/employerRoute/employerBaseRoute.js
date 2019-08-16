@@ -15,7 +15,7 @@ var employerRegister = {
       return new Promise((resolve, reject) => {
         if (!UniversalFunctions.verifyEmailFormat(payloadData.emailId)) {
           reject(UniversalFunctions.sendError(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.ERROR.INVALID_EMAIL_FORMAT));
-        }
+        } 
         else {
           Controller.EmployerBaseController.createEmployer(payloadData, function (err, data) {
             console.log(">>>>>>>".err, data)
@@ -34,7 +34,7 @@ var employerRegister = {
         first_name: Joi.string().regex(/^[a-zA-Z ]+$/).trim().min(2).required(),
         last_name: Joi.string().regex(/^[a-zA-Z ]+$/).trim().min(2).required(),
         emailId: Joi.string().required(),
-        phoneNumber: Joi.string().regex(/^[0-9]+$/).min(5).optional(),
+        businessPhoneNumber: Joi.string().regex(/^[0-9]{10}$/).trim().min(2).required(),
         password: Joi.string().optional().min(5).allow(''),
       },
       failAction: UniversalFunctions.failActionFunction
@@ -48,7 +48,7 @@ var employerRegister = {
 }
 
 //verifies OTP for email verification
-var verifyOTP =
+var verifyOTP = 
 {
   method: 'PUT',
   path: '/api/employer/verifyOTP',
@@ -60,7 +60,7 @@ var verifyOTP =
       var payloadData = request.payload;
       var employerData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
       return new Promise((resolve, reject) => {
-          console.log(employerData, "=============")
+        console.log(employerData, "=============")
         Controller.EmployerBaseController.verifyOTP(employerData, payloadData, function (err, data) {
           if (err) {
             reject(UniversalFunctions.sendError(err));
@@ -120,7 +120,7 @@ var login = {
 }
 
 //Resends the OTP
-var resendOTP =
+var resendOTP = 
 {
   method: 'PUT',
   path: '/api/employer/resendOTP',
@@ -187,7 +187,7 @@ var getOTP = {
 
 //Login via accessToken
 var accessTokenLogin =
-{
+ {
   /* *****************access token login****************** */
   method: 'POST',
   path: '/api/employer/accessTokenLogin',
@@ -202,7 +202,7 @@ var accessTokenLogin =
           console.log('%%%%%%%%%%%%%%%', err, data)
           if (!err) {
             return resolve(UniversalFunctions.sendSuccess(null, data));
-          }
+          } 
           else {
             return reject(UniversalFunctions.sendError(err));
           }
@@ -289,7 +289,7 @@ var getProfile = {
 };
 
 //change password via old password and accessToken
-var changePassword =
+var changePassword = 
 {
   method: 'PUT',
   path: '/api/employer/changePassword',
@@ -305,7 +305,7 @@ var changePassword =
           if (!err) {
             return resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.PASSWORD_RESET, employer));
           }
-          else {
+           else {
             return reject(UniversalFunctions.sendError(err));
           }
         });
@@ -347,7 +347,7 @@ var forgotPassword = {
     },
     validate: {
       payload: {
-        phoneNumber: Joi.string().regex(/^[0-9]+$/).min(5)
+        businessPhoneNumber: Joi.string().regex(/^[0-9]+$/).min(5)
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -382,7 +382,7 @@ var resetPassword = {
     validate: {
       payload: {
         password: Joi.string().min(6).required().trim(),
-        phoneNumber: Joi.string().regex(/^[0-9]+$/).min(5),
+        businessPhoneNumber: Joi.string().regex(/^[0-9]+$/).min(5),
         OTPCode: Joi.string().required()
       },
       failAction: UniversalFunctions.failActionFunction
@@ -396,18 +396,207 @@ var resetPassword = {
   }
 };
 
-var EmployerBaseRoute =
-  [
-    employerRegister,
-    verifyOTP, 
-    login,
-    resendOTP,
-    getOTP,
-    accessTokenLogin,
-    logoutCustomer,
-    getProfile,
-    changePassword,
-    forgotPassword,
-    resetPassword
-  ]
+
+var createCompany = {
+  method: 'POST',
+  path: '/api/employer/createcompany',
+  config: {
+    description: 'Register company ',
+    tags: ['api', 'createcompany'],
+    auth: 'UserAuth',
+    handler: function (request, h) {
+      var payloadData = request.payload;
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+        Controller.EmployerBaseController.createCompany(userData,payloadData, function (err, data) {
+          console.log(">>>>>>>".err, data)
+          if (err) {
+            reject(UniversalFunctions.sendError(err));
+          } else {
+            resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.CREATED, data))
+          }
+        });
+      })
+
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      failAction: UniversalFunctions.failActionFunction,
+      payload: {
+        companyName: Joi.string().required(),
+        companyLogo: Joi.string().required(),
+        location: Joi.string().required(),
+        companyIndustry : Joi.string().required(),
+        companyDescription: Joi.string().required(),
+      },
+      failAction: UniversalFunctions.failActionFunction
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+}
+
+var getCompany = {
+  method: 'GET',
+  path: '/api/employer/getcompany',
+  config: {
+    description: 'get company details',
+    auth: 'UserAuth',
+    tags: ['api', 'companydetails'],
+    handler: function (request, reply) {
+      var employerData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+        Controller.EmployerBaseController.getCompany(employerData, function (error, success) {
+          if (error) {
+            reject(UniversalFunctions.sendError(error));
+          } else {
+            resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, success));
+          }
+        });
+      })
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      failAction: UniversalFunctions.failActionFunction
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+};
+
+var updateCompany = {
+  method: 'PUT',
+  path: '/api/employer/updatecompany',
+  config: {
+    description: 'Update Company',
+    auth: 'UserAuth',
+    tags: ['api', 'updatecompany'],
+    handler: function (request, reply) {
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+        Controller.EmployerBaseController.updateCompany(userData, request.payload, function (error, data) {
+          if (error) {
+            reject(UniversalFunctions.sendError(error))
+          } else {
+            resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, data));
+          }
+        });
+      })
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      failAction: UniversalFunctions.failActionFunction,
+      payload: {
+        companyId : Joi.string().required(),
+        companyName: Joi.string().required(),
+        companyLogo: Joi.string().required(),
+        location: Joi.string().required(),
+        companyIndustry: Joi.string().required(),
+        companyDescription: Joi.string().required()
+      },
+      failAction: UniversalFunctions.failActionFunction
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+};
+
+
+var leaveCompany = {
+  method: 'DELETE',
+  path: '/api/employer/leavecompany',
+  config: {
+    description: 'Leave Company',
+    auth: 'UserAuth',
+    tags: ['api', 'leavecompany'],
+    handler: function (request, reply) {
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+        Controller.EmployerBaseController.leaveCompany(userData, function (error, data) {
+          if (error) {
+            reject(UniversalFunctions.sendError(error))
+          } else {
+            resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, data));
+          }
+        });
+      })
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      failAction: UniversalFunctions.failActionFunction,
+      failAction: UniversalFunctions.failActionFunction
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+};
+
+var assignToCompany = {
+  method: 'POST',
+  path: '/api/employer/assigntocompany',
+  config: {
+    description: 'Assign employer to an existing company ',
+    tags: ['api', 'assigncompany'],
+    auth: 'UserAuth',
+    handler: function (request, h) {
+      var payloadData = request.payload;
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+        Controller.EmployerBaseController.assignToCompany(userData,payloadData, function (err, data) {
+          console.log(">>>>>>>".err, data)
+          if (err) {
+            reject(UniversalFunctions.sendError(err));
+          } else {
+            resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.CREATED, data))
+          }
+        });
+      })
+
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      failAction: UniversalFunctions.failActionFunction,
+      payload: {
+        companyId : Joi.string().required()
+      },
+      failAction: UniversalFunctions.failActionFunction
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+}
+
+var EmployerBaseRoute = [
+  employerRegister,
+  verifyOTP,
+  login,
+  resendOTP,
+  getOTP,
+  accessTokenLogin,
+  logoutCustomer,
+  getProfile,
+  changePassword,
+  forgotPassword,
+  resetPassword,
+  createCompany,
+  getCompany,
+  updateCompany,
+  assignToCompany,
+  leaveCompany
+]
 module.exports = EmployerBaseRoute;

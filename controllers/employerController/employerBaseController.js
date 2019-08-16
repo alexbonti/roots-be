@@ -809,6 +809,399 @@
      }
    })
  }
+
+
+ var createCompany = function (userData,payloadData, callback) {
+  console.log('payload:', payloadData);
+  var accessToken = null;
+  var uniqueCode = null;
+  var company;
+  var companyData;
+  var dataToSave = payloadData;
+  console.log('payload Data:', payloadData);
+  var opportunityData = null;
+  var jobData ; 
+  var appVersion = null;
+  var customerData;
+  var userdata = {}
+  var userFound = null;
+  async.series([
+    
+    function (cb) {
+      var query = {
+        _id: userData._id
+      };
+      var projection = {
+        __v: 0,
+        password: 0,
+        accessToken: 0,
+        codeUpdatedAt: 0
+      };
+      var options = { lean: true };
+      Service.EmployerService.getEmployer(query, projection, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+          else {
+            customerData = data && data[0] || null;
+            cb()
+          }
+        }
+      });
+    },
+
+    function (cb) {
+      var projection = {
+        __v: 0,
+        password: 0,
+        codeUpdatedAt: 0,
+      };
+      var options = { lean: true };
+      company = ((String(payloadData.companyName)).replace(/\s/g, '')).toLowerCase();
+      Service.CompanyService.getCompany({companyId : company}, projection, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+            if(data == null || data.length == 0)
+            {
+              cb()
+            }
+            else{
+              cb(ERROR.COMPANY_ALREADY_EXISTS);  
+            }
+        }
+      });
+    },
+    function (cb) {
+      var dataToUpdate = { $set: { 'companyId': company } };
+      var condition = { companyId: null };
+      Service.EmployerService.updateEmployer(condition, dataToUpdate, {}, function (err, employer) {
+        console.log("customerData-------->>>" + JSON.stringify(employer));
+        if (err) {
+          cb(err);
+        } else {
+          if (!employer || employer.length == 0) {
+            cb(ERROR.COMPANY_ALREADY_ASSIGNED);
+          }
+          else {
+            cb(null);
+          }
+        }
+      });
+    },
+
+
+    function (cb) {
+      dataToSave.companyId = company;
+      Service.CompanyService.createCompany(dataToSave, function (err, comanyDataFromDB) {
+        console.log('hello', err, comanyDataFromDB)
+        if (err) {
+          cb(err)
+        } else {
+          companyData = comanyDataFromDB;
+          cb();
+        }
+      })
+    } 
+
+  ], function (err, data, user) {
+    if (err) {
+      return callback(err);
+    } else {
+      return callback(null, {});
+    }
+  });
+};
+
+ var getCompany = function (employerData, callback) {
+  var companyData;
+  async.series([
+    function (cb) {
+      var query = {
+        _id: employerData._id
+      };
+      var projection = {
+        __v: 0,
+        password: 0,
+        accessToken: 0,
+        codeUpdatedAt: 0
+      };
+      var options = { lean: true };
+      Service.EmployerService.getEmployer(query, projection, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data == null || data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+          else {
+            cb()
+          }
+        }
+      });
+    },
+
+    function(cb){
+
+      var projection = {
+        __v: 0,
+      };
+      var options = { lean: true };
+      Service.CompanyService.getCompany({}, projection, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data == null || data.length == 0) cb(ERROR.DEFAULT)
+          else {
+            companyData = data;
+            cb()
+          }
+        }
+      });
+    }
+
+  ], function (err, result) {
+    if (err) return callback(err)
+    else return callback(null, { companyData: companyData })
+  })
+}
+
+var updateCompany = function (userData, payloadData, callbackRoute) {
+  var companyData;
+  var employerData;
+  async.series([
+    function (cb) {
+      var query = {
+        _id: userData._id
+      };
+      var options = { lean: true };
+      Service.EmployerService.getEmployer(query, {}, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data == null || data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+          else {
+            employerData = data[0];
+            cb();
+          }
+        }
+      });
+    },
+    
+    function(cb)
+    {
+      var projection = {
+        __v: 0,
+        accessToken: 0,
+        codeUpdatedAt: 0
+      };
+      
+      var options = { lean: true };
+      Service.CompanyService.getCompany({companyId: payloadData.companyId }, projection, options, function (err, data) {
+        if (err) {
+            cb(err);
+        } 
+        else {
+          if(data == null || data.length == 0)
+          {
+            cb(ERROR.INVALID_COMPANY_ID)
+          }
+          else{
+            companyData = data;
+            cb();
+          }
+        }
+      });
+    },
+
+    
+    function (callback) {
+      console.log(">>>>>>",companyData);
+        var dataToUpdate = { $set: { 'companyName': payloadData.companyName, 'companyLogo': payloadData.companyLogo ,'location': payloadData.location,'companyDescription':payloadData.companyDescription,'companyIndustry': payloadData.companyIndustry } };
+        var condition = { companyId: payloadData.companyId , companyId : employerData.companyId };
+        Service.CompanyService.updateCompany(condition, dataToUpdate, {}, function (err, comp) {
+          console.log("opportunityData-------->>>" + JSON.stringify(comp));
+          if (err) {
+            callback(err)
+          } else {
+            if (!comp || comp.length == 0) {
+              callback(ERROR.INVALID_COMPANY_ID);
+            }
+            else {
+              callback(null);
+            }
+          }
+        });
+    }
+  ],
+    function (error, result) {
+      if (error) {
+        return callbackRoute(error);
+      } else {
+        return callbackRoute(null),{ companyData: companyData };
+      }
+    });
+}
+
+
+var leaveCompany = function (userData, callbackRoute) {
+  var companyData;
+  var employerData;
+  async.series([
+    function (cb) {
+      var query = {
+        _id: userData._id
+      };
+      var options = { lean: true };
+      Service.EmployerService.getEmployer(query, {}, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data == null || data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+          else {
+            employerData = data[0];
+            cb();
+          }
+        }
+      });
+    },
+    
+    function(cb)
+    {
+      var projection = {
+        __v: 0,
+        accessToken: 0,
+        codeUpdatedAt: 0
+      };
+      
+      var options = { lean: true };
+      Service.CompanyService.getCompany({companyId: employerData.companyId }, projection, options, function (err, data) {
+        if (err) {
+            cb(err);
+        } 
+        else {
+          if(data == null || data.length == 0)
+          {
+            cb(ERROR.INVALID_COMPANY_ID)
+          }
+          else{
+            companyData = data;
+            cb();
+          }
+        }
+      });
+    },
+
+    
+    function (callback) {
+        var dataToUpdate = { $set: { 'companyId': null } };
+        var condition = { _id : userData._id };
+        Service.EmployerService.updateEmployer(condition, dataToUpdate, {}, function (err, comp) {
+          console.log("opportunityData-------->>>" + JSON.stringify(comp));
+          if (err) {
+            callback(err)
+          } else {
+            if (!comp || comp.length == 0) {
+              callback(ERROR.INVALID_COMPANY_ID);
+            }
+            else {
+              callback(null);
+            }
+          }
+        });
+    }
+  ],
+    function (error, result) {
+      if (error) {
+        return callbackRoute(error);
+      } else {
+        return callbackRoute(null),{ companyData: companyData };
+      }
+    });
+}
+var assignToCompany = function (userData,payloadData, callback) {
+  console.log('payload:', payloadData);
+  var accessToken = null;
+  var uniqueCode = null;
+  var company;
+  var companyData;
+  var dataToSave = payloadData;
+  console.log('payload Data:', payloadData);
+  var opportunityData = null;
+  var jobData ; 
+  var appVersion = null;
+  var customerData;
+  var userdata = {}
+  var userFound = null;
+  async.series([
+    
+    function (cb) {
+      var query = {
+        _id: userData._id
+      };
+      var projection = {
+        __v: 0,
+        password: 0,
+        accessToken: 0,
+        codeUpdatedAt: 0
+      };
+      var options = { lean: true };
+      Service.EmployerService.getEmployer(query, projection, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+          else {
+            customerData = data && data[0] || null;
+            cb()
+          }
+        }
+      });
+    },
+    function(cb){
+
+      var projection = {
+        __v: 0,
+      };
+      var options = { lean: true };
+      Service.CompanyService.getCompany({companyId : payloadData.companyId}, projection, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data == null || data.length == 0) cb(ERROR.INVALID_COMPANY_ID)
+          else {
+            companyData = data;
+            cb()
+          }
+        }
+      });
+    },
+
+    function (cb) {
+      var dataToUpdate = { $set: {'companyId': payloadData.companyId } };
+      var condition = { companyId: null || "undefined" };
+      Service.EmployerService.updateEmployer(condition, dataToUpdate, {}, function (err, employer) {
+        console.log("customerData-------->>>" + JSON.stringify(employer));
+        if (err) {
+          cb(err);
+        } else {
+          if (!employer || employer.length == 0) {
+            cb(ERROR.COMPANY_ALREADY_ASSIGNED);
+          }
+          else {
+            cb(null);
+          }
+        }
+      });
+    }
+
+  ], function (err, data, user) {
+    if (err) {
+      return callback(err);
+    } else {
+      return callback(null, {});
+    }
+  });
+}; 
  
  module.exports = {
    createEmployer: createEmployer,
@@ -821,5 +1214,10 @@
    getProfile: getProfile,
    changePassword: changePassword,
    forgetPassword: forgetPassword,
-   resetPassword: resetPassword
+   resetPassword: resetPassword,
+   getCompany : getCompany,
+   createCompany: createCompany,
+   updateCompany: updateCompany,
+   assignToCompany : assignToCompany,
+   leaveCompany : leaveCompany
  };
