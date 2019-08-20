@@ -173,7 +173,7 @@ var getOTP = {
     },
     validate: {
       query: {
-        phoneNumber: Joi.string().regex(/^[0-9]+$/).min(5)
+        emailId: Joi.string().required()
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -347,7 +347,7 @@ var forgotPassword = {
     },
     validate: {
       payload: {
-        businessPhoneNumber: Joi.string().regex(/^[0-9]+$/).min(5)
+        emailId: Joi.string().required()
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -382,7 +382,7 @@ var resetPassword = {
     validate: {
       payload: {
         password: Joi.string().min(6).required().trim(),
-        businessPhoneNumber: Joi.string().regex(/^[0-9]+$/).min(5),
+        emailId: Joi.string().required(),
         OTPCode: Joi.string().required()
       },
       failAction: UniversalFunctions.failActionFunction

@@ -3,6 +3,7 @@
  var async = require('async');
  var TokenManager = require('../../lib/TokenManager');
  var CodeGenerator = require('../../lib/CodeGenerator');
+ var NodeMailer = require('../../lib/nodeMailer');
  var ERROR = UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.ERROR;
  var _ = require('underscore');
  
@@ -58,6 +59,8 @@
        })
      },
      function (cb) {
+      
+       NodeMailer.sendMail(payloadData.emailId,uniqueCode);
        //Insert Into DB
        dataToSave.OTPCode = uniqueCode;
        dataToSave.registrationDate = new Date().toISOString();
@@ -356,6 +359,7 @@
          lean: true
        };
        Service.EmployerService.updateEmployer(criteria, setQuery, options, cb);
+       NodeMailer.sendMail(payloadData.emailId,uniqueCode);
      }
    ], function (err, result) {
      return callback(err, { OTPCode: uniqueCode });
@@ -650,11 +654,13 @@
        var query = {
          _id: dataFound._id
        };
+       
        Service.EmployerService.updateEmployer(query, dataToUpdate, {}, function (err, data) {
          if (err) {
            cb(err);
          } else {
-           cb();
+          NodeMailer.sendMail(payloadData.emailId,code);
+          cb();
          }
        });
      },
