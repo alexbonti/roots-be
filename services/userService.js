@@ -76,6 +76,24 @@ var getAllGeneratedCodes = function (callback) {
     })
 };
 
+var getPopulatedSavedJobs = function(
+    criteria,
+    projection,
+    populate,
+    sortOptions,
+    setOptions,
+    callback
+  ) {
+    console.log("ok........", criteria, projection, populate);
+    Models.UserExtended.find(criteria)
+      .select(projection)
+      .populate(populate)
+      .sort(sortOptions)
+      .exec(function(err, result) {
+        callback(err, result);
+      });
+  };
+
 module.exports = {
     updateUser: updateUser,
     createUser: createUser,
@@ -85,5 +103,6 @@ module.exports = {
     getUserPromise: getUserPromise,
     createUserExtended : createUserExtended,
     updateUserExtended: updateUserExtended,
-    getUserExtended : getUserExtended
+    getUserExtended : getUserExtended,
+    getPopulatedSavedJobs : getPopulatedSavedJobs
 };

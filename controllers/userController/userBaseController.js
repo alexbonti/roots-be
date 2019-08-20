@@ -25,18 +25,25 @@ var createUser = function (payloadData, callback) {
     function (cb) {
       if (payloadData.linkedinId) {
         var query = {
-          $or: [{ emailId: payloadData.emailId }, { linkedinId: payloadData.linkedinId }]
+          $or: [{
+            emailId: payloadData.emailId
+          }, {
+            linkedinId: payloadData.linkedinId
+          }]
         }
-        Service.UserService.getUser(query, {}, { lean: true }, function (error, data) {
+        Service.UserService.getUser(query, {}, {
+          lean: true
+        }, function (error, data) {
           if (error) {
             cb(error);
           } else {
             if (data && data.length > 0) {
               if (data[0].emailVerified == true) {
                 cb(ERROR.USER_ALREADY_REGISTERED);
-              }
-              else {
-                Service.UserService.deleteUser({ _id: data[0]._id }, function (err, updatedData) {
+              } else {
+                Service.UserService.deleteUser({
+                  _id: data[0]._id
+                }, function (err, updatedData) {
                   if (err) cb(err)
                   else cb(null);
                 });
@@ -46,21 +53,25 @@ var createUser = function (payloadData, callback) {
             }
           }
         });
-      }
-      else {
+      } else {
         var query = {
-          $or: [{ emailId: payloadData.emailId }]
+          $or: [{
+            emailId: payloadData.emailId
+          }]
         };
-        Service.UserService.getUser(query, {}, { lean: true }, function (error, data) {
+        Service.UserService.getUser(query, {}, {
+          lean: true
+        }, function (error, data) {
           if (error) {
             cb(error);
           } else {
             if (data && data.length > 0) {
               if (data[0].emailVerified == true) {
                 cb(ERROR.USER_ALREADY_REGISTERED)
-              }
-              else {
-                Service.UserService.deleteUser({ _id: data[0]._id }, function (err, updatedData) {
+              } else {
+                Service.UserService.deleteUser({
+                  _id: data[0]._id
+                }, function (err, updatedData) {
                   if (err) cb(err)
                   else cb(null);
                 })
@@ -103,7 +114,7 @@ var createUser = function (payloadData, callback) {
     },
     function (cb) {
 
-      NodeMailer.sendMail(payloadData.emailId,uniqueCode);
+      NodeMailer.sendMail(payloadData.emailId, uniqueCode);
       //Insert Into DB
       dataToSave.OTPCode = uniqueCode;
       // dataToSave.emailId = payloadData.emailId;
@@ -114,8 +125,7 @@ var createUser = function (payloadData, callback) {
           if (err.code == 11000 && err.message.indexOf('emailId_1') > -1) {
             cb(ERROR.PHONE_NO_EXIST);
 
-          }
-          else {
+          } else {
             cb(err)
           }
         } else {
@@ -155,7 +165,7 @@ var createUser = function (payloadData, callback) {
       }
     },
 
-    function(cb){
+    function (cb) {
 
     },
   ], function (err, data) {
@@ -178,7 +188,9 @@ var verifyOTP = function (userData, payloadData, callback) {
       var query = {
         _id: userData._id
       };
-      var options = { lean: true };
+      var options = {
+        lean: true
+      };
       Service.UserService.getUser(query, {}, options, function (err, data) {
         if (err) {
           cb(err);
@@ -206,10 +218,16 @@ var verifyOTP = function (userData, payloadData, callback) {
         OTPCode: payloadData.OTPCode
       };
       var setQuery = {
-        $set: { emailVerified: true },
-        $unset: { OTPCode: 1 }
+        $set: {
+          emailVerified: true
+        },
+        $unset: {
+          OTPCode: 1
+        }
       };
-      var options = { new: true };
+      var options = {
+        new: true
+      };
       console.log('updating>>>', criteria, setQuery, options)
       Service.UserService.updateUser(criteria, setQuery, options, function (err, updatedData) {
         console.log('verify otp callback result', err, updatedData)
@@ -272,8 +290,7 @@ var loginUser = function (payloadData, callback) {
 
           cb(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.ERROR.NOT_REGISTERED);
 
-        }
-        else {
+        } else {
           successLogin = true;
           cb();
         }
@@ -287,7 +304,9 @@ var loginUser = function (payloadData, callback) {
         deviceToken: payloadData.deviceToken,
         deviceType: payloadData.deviceType
       };
-      Service.UserService.updateUser(criteria, setQuery, { new: true }, function (err, data) {
+      Service.UserService.updateUser(criteria, setQuery, {
+        new: true
+      }, function (err, data) {
         updatedUserDetails = data;
         cb(err, data);
       });
@@ -385,13 +404,11 @@ var loginViaLinkedin = function (payloadData, callback) {
       //validations
       if (!userFound) {
         cb(ERROR.LINKEDIN_ID_NOT_FOUND);
-      }
-      else if (userFound.emailVerified == false) {
+      } else if (userFound.emailVerified == false) {
 
         cb(ERROR.NOT_REGISTERED);
 
-      }
-      else {
+      } else {
         successLogin = true;
         cb();
       }
@@ -404,7 +421,9 @@ var loginViaLinkedin = function (payloadData, callback) {
         deviceToken: payloadData.deviceToken,
         deviceType: payloadData.deviceType
       };
-      Service.UserService.updateUser(criteria, setQuery, { new: true }, function (err, data) {
+      Service.UserService.updateUser(criteria, setQuery, {
+        new: true
+      }, function (err, data) {
         updatedUserDetails = data;
         cb(err, data);
       });
@@ -497,7 +516,9 @@ var resendOTP = function (userData, callback) {
       var query = {
         _id: userData._id
       };
-      var options = { lean: true };
+      var options = {
+        lean: true
+      };
       Service.UserService.getUser(query, {}, options, function (err, data) {
         if (err) {
           cb(err);
@@ -542,10 +563,12 @@ var resendOTP = function (userData, callback) {
         lean: true
       };
       Service.UserService.updateUser(criteria, setQuery, options, cb);
-      NodeMailer.sendMail(payloadData.emailId,uniqueCode);
+      NodeMailer.sendMail(payloadData.emailId, uniqueCode);
     }
   ], function (err, result) {
-    return callback(err, { OTPCode: uniqueCode });
+    return callback(err, {
+      OTPCode: uniqueCode
+    });
   })
 };
 
@@ -557,7 +580,9 @@ var getOTP = function (payloadData, callback) {
     _id: 0,
     OTPCode: 1
   };
-  var options = { lean: true };
+  var options = {
+    lean: true
+  };
   Service.CustomerService.getCustomer(query, projection, options, function (err, data) {
     if (err) {
       return callback(err);
@@ -620,48 +645,55 @@ var accessTokenLogin = function (userData, callback) {
           cb();
         }
       });
-    }], function (err, user) {
-      if (!err) return callback(null, {
-        accessToken: userdata.accessToken,
-        userDetails: UniversalFunctions.deleteUnnecessaryUserData(userFound),
-      });
-      else return callback(err);
-
+    }
+  ], function (err, user) {
+    if (!err) return callback(null, {
+      accessToken: userdata.accessToken,
+      userDetails: UniversalFunctions.deleteUnnecessaryUserData(userFound),
     });
+    else return callback(err);
+
+  });
 }
 
 var logoutCustomer = function (userData, callbackRoute) {
   console.log(userData)
   async.series([
-    function (cb) {
-      var criteria = {
-        _id: userData._id
-      }
-      Service.UserService.getUser(criteria, {}, {}, function (err, data) {
-        if (err) cb(err)
-        else {
-          console.log(data)
-          if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+      function (cb) {
+        var criteria = {
+          _id: userData._id
+        }
+        Service.UserService.getUser(criteria, {}, {}, function (err, data) {
+          if (err) cb(err)
           else {
-            cb()
+            console.log(data)
+            if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+            else {
+              cb()
+            }
           }
-        }
 
-      })
-    },
-    function (callback) {
-      var condition = { _id: userData._id };
-      var dataToUpdate = { $unset: { accessToken: 1 } };
-      Service.UserService.updateUser(condition, dataToUpdate, {}, function (err, result) {
-        if (err) {
-          callback(err);
-        } else {
-          console.log("------update customer -----logout -callback----->" + JSON.stringify(result))
-          callback();
-        }
-      });
-    }
-  ],
+        })
+      },
+      function (callback) {
+        var condition = {
+          _id: userData._id
+        };
+        var dataToUpdate = {
+          $unset: {
+            accessToken: 1
+          }
+        };
+        Service.UserService.updateUser(condition, dataToUpdate, {}, function (err, result) {
+          if (err) {
+            callback(err);
+          } else {
+            console.log("------update customer -----logout -callback----->" + JSON.stringify(result))
+            callback();
+          }
+        });
+      }
+    ],
     function (error, result) {
       if (error) {
         return callbackRoute(error);
@@ -684,7 +716,9 @@ var getProfile = function (userData, callback) {
         accessToken: 0,
         codeUpdatedAt: 0
       };
-      var options = { lean: true };
+      var options = {
+        lean: true
+      };
       Service.UserService.getUser(query, projection, options, function (err, data) {
         if (err) {
           cb(err);
@@ -700,7 +734,9 @@ var getProfile = function (userData, callback) {
 
   ], function (err, result) {
     if (err) return callback(err)
-    else return callback(null, { customerData: customerData })
+    else return callback(null, {
+      customerData: customerData
+    })
   })
 }
 
@@ -708,68 +744,75 @@ var changePassword = function (userData, payloadData, callbackRoute) {
   var oldPassword = UniversalFunctions.CryptData(payloadData.oldPassword);
   var newPassword = UniversalFunctions.CryptData(payloadData.newPassword);
   async.series([
-    function (cb) {
-      var query = {
-        _id: userData._id
-      };
-      var options = { lean: true };
-      Service.UserService.getUser(query, {}, options, function (err, data) {
-        if (err) {
-          cb(err);
-        } else {
-          if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
-          else cb()
-        }
-      });
-    },
-    function (callback) {
-      var query = {
-        _id: userData._id
-      };
-      var projection = {
-        password: 1
-      };
-      var options = { lean: true };
-      Service.UserService.getUser(query, projection, options, function (err, data) {
-        if (err) {
-          callback(err);
-        } else {
-          var customerData = data && data[0] || null;
-          console.log("customerData-------->>>" + JSON.stringify(customerData))
-          if (customerData == null) {
-            callback(ERROR.NOT_FOUND);
+      function (cb) {
+        var query = {
+          _id: userData._id
+        };
+        var options = {
+          lean: true
+        };
+        Service.UserService.getUser(query, {}, options, function (err, data) {
+          if (err) {
+            cb(err);
           } else {
-            if (data[0].password == oldPassword && data[0].password != newPassword) {
+            if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+            else cb()
+          }
+        });
+      },
+      function (callback) {
+        var query = {
+          _id: userData._id
+        };
+        var projection = {
+          password: 1
+        };
+        var options = {
+          lean: true
+        };
+        Service.UserService.getUser(query, projection, options, function (err, data) {
+          if (err) {
+            callback(err);
+          } else {
+            var customerData = data && data[0] || null;
+            console.log("customerData-------->>>" + JSON.stringify(customerData))
+            if (customerData == null) {
+              callback(ERROR.NOT_FOUND);
+            } else {
+              if (data[0].password == oldPassword && data[0].password != newPassword) {
+                callback(null);
+              } else if (data[0].password != oldPassword) {
+                callback(ERROR.WRONG_PASSWORD)
+              } else if (data[0].password == newPassword) {
+                callback(ERROR.NOT_UPDATE)
+              }
+            }
+          }
+        });
+      },
+      function (callback) {
+        var dataToUpdate = {
+          $set: {
+            'password': newPassword
+          }
+        };
+        var condition = {
+          _id: userData._id
+        };
+        Service.UserService.updateUser(condition, dataToUpdate, {}, function (err, user) {
+          console.log("customerData-------->>>" + JSON.stringify(user));
+          if (err) {
+            callback(err);
+          } else {
+            if (!user || user.length == 0) {
+              callback(ERROR.NOT_FOUND);
+            } else {
               callback(null);
             }
-            else if (data[0].password != oldPassword) {
-              callback(ERROR.WRONG_PASSWORD)
-            }
-            else if (data[0].password == newPassword) {
-              callback(ERROR.NOT_UPDATE)
-            }
           }
-        }
-      });
-    },
-    function (callback) {
-      var dataToUpdate = { $set: { 'password': newPassword } };
-      var condition = { _id: userData._id };
-      Service.UserService.updateUser(condition, dataToUpdate, {}, function (err, user) {
-        console.log("customerData-------->>>" + JSON.stringify(user));
-        if (err) {
-          callback(err);
-        } else {
-          if (!user || user.length == 0) {
-            callback(ERROR.NOT_FOUND);
-          }
-          else {
-            callback(null);
-          }
-        }
-      });
-    }
-  ],
+        });
+      }
+    ],
     function (error, result) {
       if (error) {
         return callbackRoute(error);
@@ -784,108 +827,117 @@ var forgetPassword = function (payloadData, callback) {
   var code;
   var forgotDataEntry;
   async.series([
-    function (cb) {
-      var query = {
-        emailId: payloadData.emailId
-      };
-      Service.UserService.getUser(query, {
-        _id: 1,
-        emailId: 1,
-        emailVerified: 1,
-        countryCode: 1
-      }, {}, function (err, data) {
-        if (err) {
-          cb(ERROR.PASSWORD_CHANGE_REQUEST_INVALID);
-        } else {
-          dataFound = data && data[0] || null;
-          if (dataFound == null) {
-            cb(ERROR.USER_NOT_REGISTERED);
+      function (cb) {
+        var query = {
+          emailId: payloadData.emailId
+        };
+        Service.UserService.getUser(query, {
+          _id: 1,
+          emailId: 1,
+          emailVerified: 1,
+          countryCode: 1
+        }, {}, function (err, data) {
+          if (err) {
+            cb(ERROR.PASSWORD_CHANGE_REQUEST_INVALID);
           } else {
-            if (dataFound.emailVerified == false) {
-              cb(ERROR.PHONE_VERIFICATION);
+            dataFound = data && data[0] || null;
+            if (dataFound == null) {
+              cb(ERROR.USER_NOT_REGISTERED);
             } else {
-              cb();
+              if (dataFound.emailVerified == false) {
+                cb(ERROR.PHONE_VERIFICATION);
+              } else {
+                cb();
+              }
+
             }
-
           }
-        }
-      });
-    },
-    function (cb) {
-      CodeGenerator.generateUniqueCode(6, UniversalFunctions.CONFIG.APP_CONSTANTS.DATABASE.USER_ROLES.USER, function (err, numberObj) {
-        if (err) {
-          cb(err);
-        } else {
-          if (!numberObj || numberObj.number == null) {
-            cb(ERROR.UNIQUE_CODE_LIMIT_REACHED);
-          } else {
-            code = numberObj.number;
-            cb();
-          }
-        }
-      })
-    },
-    function (cb) {
-      var dataToUpdate = {
-        code: code
-      };
-      var query = {
-        _id: dataFound._id
-      };
-      Service.UserService.updateUser(query, dataToUpdate, {}, function (err, data) {
-        if (err) {
-          cb(err);
-        } else {
-          NodeMailer.sendMail(payloadData.emailId,code);
-          cb();
-        }
-      });
-    },
-    function (cb) {
-      console.log("code------>>" + code)
-      Service.ForgetPasswordService.getForgetPasswordRequest({ customerID: dataFound._id }, {
-        _id: 1,
-        isChanged: 1
-      }, { lean: 1 }, function (err, data) {
-        if (err) {
-          cb(err);
-        } else {
-          forgotDataEntry = data && data[0] || null;
-          console.log("@@@@@@@@@@@@@@@@@@@@@@@@", forgotDataEntry)
-          cb();
-        }
-      });
-
-    },
-    function (cb) {
-      var data = {
-        customerID: dataFound._id,
-        requestedAt: Date.now(),
-        userType: UniversalFunctions.CONFIG.APP_CONSTANTS.DATABASE.USER_ROLES.USER
-      };
-      if (forgotDataEntry == null) {
-        Service.ForgetPasswordService.createForgetPasswordRequest(data, function (err, data) {
+        });
+      },
+      function (cb) {
+        CodeGenerator.generateUniqueCode(6, UniversalFunctions.CONFIG.APP_CONSTANTS.DATABASE.USER_ROLES.USER, function (err, numberObj) {
           if (err) {
             cb(err);
           } else {
-            console.log("<<<<<<<<<<<<<< created successfully");
+            if (!numberObj || numberObj.number == null) {
+              cb(ERROR.UNIQUE_CODE_LIMIT_REACHED);
+            } else {
+              code = numberObj.number;
+              cb();
+            }
+          }
+        })
+      },
+      function (cb) {
+        var dataToUpdate = {
+          code: code
+        };
+        var query = {
+          _id: dataFound._id
+        };
+        Service.UserService.updateUser(query, dataToUpdate, {}, function (err, data) {
+          if (err) {
+            cb(err);
+          } else {
+            NodeMailer.sendMail(payloadData.emailId, code);
             cb();
           }
         });
-      } else {
-        if (forgotDataEntry.isChanged == true) {
-          data.isChanged = false;
-        }
+      },
+      function (cb) {
+        console.log("code------>>" + code)
+        Service.ForgetPasswordService.getForgetPasswordRequest({
+          customerID: dataFound._id
+        }, {
+          _id: 1,
+          isChanged: 1
+        }, {
+          lean: 1
+        }, function (err, data) {
+          if (err) {
+            cb(err);
+          } else {
+            forgotDataEntry = data && data[0] || null;
+            console.log("@@@@@@@@@@@@@@@@@@@@@@@@", forgotDataEntry)
+            cb();
+          }
+        });
 
-        Service.ForgetPasswordService.updateForgetPasswordRequest({ _id: forgotDataEntry._id }, data, {}, cb);
+      },
+      function (cb) {
+        var data = {
+          customerID: dataFound._id,
+          requestedAt: Date.now(),
+          userType: UniversalFunctions.CONFIG.APP_CONSTANTS.DATABASE.USER_ROLES.USER
+        };
+        if (forgotDataEntry == null) {
+          Service.ForgetPasswordService.createForgetPasswordRequest(data, function (err, data) {
+            if (err) {
+              cb(err);
+            } else {
+              console.log("<<<<<<<<<<<<<< created successfully");
+              cb();
+            }
+          });
+        } else {
+          if (forgotDataEntry.isChanged == true) {
+            data.isChanged = false;
+          }
+
+          Service.ForgetPasswordService.updateForgetPasswordRequest({
+            _id: forgotDataEntry._id
+          }, data, {}, cb);
+        }
       }
-    }
-  ],
+    ],
     function (error, result) {
       if (error) {
         return callback(error);
       } else {
-        return callback(null, { emailId: payloadData.emailId, OTPCode: code });
+        return callback(null, {
+          emailId: payloadData.emailId,
+          OTPCode: code
+        });
       }
     });
 }
@@ -904,7 +956,9 @@ var resetPassword = function (payloadData, callbackRoute) {
         _id: 1,
         code: 1,
         emailVerified: 1
-      }, { lean: true }, function (err, result) {
+      }, {
+        lean: true
+      }, function (err, result) {
         console.log("@@@@@@@@@@", err, result)
         if (err) {
           callback(err);
@@ -929,8 +983,13 @@ var resetPassword = function (payloadData, callbackRoute) {
       });
     },
     function (callback) {
-      var query = { customerID: customerId, isChanged: false };
-      Service.ForgetPasswordService.getForgetPasswordRequest(query, { __v: 0 }, {
+      var query = {
+        customerID: customerId,
+        isChanged: false
+      };
+      Service.ForgetPasswordService.getForgetPasswordRequest(query, {
+        __v: 0
+      }, {
         limit: 1,
         lean: true
       }, function (err, data) {
@@ -951,16 +1010,19 @@ var resetPassword = function (payloadData, callbackRoute) {
         } else {
           callback();
         }
-      }
-      else {
+      } else {
         console.log("-----empty founddata----")
         return callback(ERROR.PASSWORD_CHANGE_REQUEST_INVALID);
       }
     },
     function (callback) {
-      var dataToUpdate = { password: UniversalFunctions.CryptData(payloadData.password) };
+      var dataToUpdate = {
+        password: UniversalFunctions.CryptData(payloadData.password)
+      };
       console.log(dataToUpdate)
-      Service.UserService.updateUser({ _id: customerId }, dataToUpdate, {}, function (error, result) {
+      Service.UserService.updateUser({
+        _id: customerId
+      }, dataToUpdate, {}, function (error, result) {
         if (error) {
           callback(error);
         } else {
@@ -979,7 +1041,9 @@ var resetPassword = function (payloadData, callbackRoute) {
         changedAt: UniversalFunctions.getTimestamp()
       };
       console.log("------update forget collection----")
-      Service.ForgetPasswordService.updateForgetPasswordRequest({ customerID: customerId }, dataToUpdate, {
+      Service.ForgetPasswordService.updateForgetPasswordRequest({
+        customerID: customerId
+      }, dataToUpdate, {
         lean: true
       }, callback);
     }
@@ -992,18 +1056,18 @@ var resetPassword = function (payloadData, callbackRoute) {
   })
 }
 
-var volunteerUserExtended = function (userData,payloadData, callback) {
+var volunteerUserExtended = function (userData, payloadData, callback) {
   console.log('payload:', payloadData);
   var accessToken = null;
   var uniqueCode = null;
   var extendedCustomerData = null;
-  var jobData ; 
+  var jobData;
   var appVersion = null;
   var customerData;
   var userdata = {}
   var userFound = null;
   async.series([
-    
+
     function (cb) {
       var query = {
         _id: userData._id
@@ -1014,7 +1078,9 @@ var volunteerUserExtended = function (userData,payloadData, callback) {
         accessToken: 0,
         codeUpdatedAt: 0
       };
-      var options = { lean: true };
+      var options = {
+        lean: true
+      };
       Service.UserService.getUser(query, projection, options, function (err, data) {
         if (err) {
           cb(err);
@@ -1027,15 +1093,18 @@ var volunteerUserExtended = function (userData,payloadData, callback) {
         }
       });
     },
-    function(cb){
+    function (cb) {
       var projection = {
         __v: 0,
       }
-      Service.UserService.getUserExtended({userId : customerData._id}, projection, {lean : true}, function(err,data){
-        if(err) cb(err)
-        else{
-          if(data == null || data.length == 0)
-          {
+      Service.UserService.getUserExtended({
+        userId: customerData._id
+      }, projection, {
+        lean: true
+      }, function (err, data) {
+        if (err) cb(err)
+        else {
+          if (data == null || data.length == 0) {
             var dataToSet = {
               userId: customerData._id
             }
@@ -1047,33 +1116,33 @@ var volunteerUserExtended = function (userData,payloadData, callback) {
                 extendedCustomerData = extendedCustomer;
                 cb();
               }
-            })  
-          }
-          else{
-            extendedCustomerData = data && data[0] || null ;
+            })
+          } else {
+            extendedCustomerData = data && data[0] || null;
             console.log('hello', err, extendedCustomerData)
             cb();
           }
         }
       })
     },
-    function(cb){
-      criteria={
+    function (cb) {
+      criteria = {
         _id: extendedCustomerData._id
       }
-      var dataToUpdate ={
-        $addToSet:{ volunteer : payloadData.volunteer
+      var dataToUpdate = {
+        $addToSet: {
+          volunteer: payloadData.volunteer
         }
       }
       console.log('Update is happening');
-      Service.UserService.updateUserExtended(criteria,dataToUpdate,{},function(err,data){
-        if(err) cb(err)
+      Service.UserService.updateUserExtended(criteria, dataToUpdate, {}, function (err, data) {
+        if (err) cb(err)
         else {
-            cb();
-            console.log('Updation done');
-          }
+          cb();
+          console.log('Updation done');
+        }
       })
-    }    
+    }
   ], function (err, data, user) {
     if (err) {
       return callback(err);
@@ -1083,18 +1152,18 @@ var volunteerUserExtended = function (userData,payloadData, callback) {
   });
 };
 
-var workExperienceUserExtended = function (userData,payloadData, callback) {
+var workExperienceUserExtended = function (userData, payloadData, callback) {
   console.log('payload:', payloadData);
   var accessToken = null;
   var uniqueCode = null;
   var extendedCustomerData = null;
-  var jobData ; 
+  var jobData;
   var appVersion = null;
   var customerData;
   var userdata = {}
   var userFound = null;
   async.series([
-    
+
     function (cb) {
       var query = {
         _id: userData._id
@@ -1105,7 +1174,9 @@ var workExperienceUserExtended = function (userData,payloadData, callback) {
         accessToken: 0,
         codeUpdatedAt: 0
       };
-      var options = { lean: true };
+      var options = {
+        lean: true
+      };
       Service.UserService.getUser(query, projection, options, function (err, data) {
         if (err) {
           cb(err);
@@ -1118,15 +1189,18 @@ var workExperienceUserExtended = function (userData,payloadData, callback) {
         }
       });
     },
-    function(cb){
+    function (cb) {
       var projection = {
         __v: 0,
       }
-      Service.UserService.getUserExtended({userId : customerData._id}, projection, {lean : true}, function(err,data){
-        if(err) cb(err)
-        else{
-          if(data == null || data.length == 0)
-          {
+      Service.UserService.getUserExtended({
+        userId: customerData._id
+      }, projection, {
+        lean: true
+      }, function (err, data) {
+        if (err) cb(err)
+        else {
+          if (data == null || data.length == 0) {
             var dataToSet = {
               userId: customerData._id
             }
@@ -1138,29 +1212,28 @@ var workExperienceUserExtended = function (userData,payloadData, callback) {
                 extendedCustomerData = extendedCustomer;
                 cb();
               }
-            })  
-          }
-          else{
-            extendedCustomerData = data && data[0] || null ;
+            })
+          } else {
+            extendedCustomerData = data && data[0] || null;
             cb();
           }
         }
       })
     },
-    function(cb){
-      criteria={
+    function (cb) {
+      criteria = {
         _id: extendedCustomerData._id
       }
-      var dataToUpdate ={
-        $addToSet:{
-          workExperience:payloadData.workExperience
+      var dataToUpdate = {
+        $addToSet: {
+          workExperience: payloadData.workExperience
         }
       }
-      Service.UserService.updateUserExtended(criteria,dataToUpdate,{},function(err,data){
-        if(err) cb(err)
+      Service.UserService.updateUserExtended(criteria, dataToUpdate, {}, function (err, data) {
+        if (err) cb(err)
         else cb()
       })
-    }    
+    }
   ], function (err, data, user) {
     if (err) {
       return callback(err);
@@ -1170,18 +1243,18 @@ var workExperienceUserExtended = function (userData,payloadData, callback) {
   });
 };
 
-var educationUserExtended = function (userData,payloadData, callback) {
+var educationUserExtended = function (userData, payloadData, callback) {
   console.log('payload:', payloadData);
   var accessToken = null;
   var uniqueCode = null;
   var extendedCustomerData = null;
-  var jobData ; 
+  var jobData;
   var appVersion = null;
   var customerData;
   var userdata = {}
   var userFound = null;
   async.series([
-    
+
     function (cb) {
       var query = {
         _id: userData._id
@@ -1192,7 +1265,9 @@ var educationUserExtended = function (userData,payloadData, callback) {
         accessToken: 0,
         codeUpdatedAt: 0
       };
-      var options = { lean: true };
+      var options = {
+        lean: true
+      };
       Service.UserService.getUser(query, projection, options, function (err, data) {
         if (err) {
           cb(err);
@@ -1205,15 +1280,18 @@ var educationUserExtended = function (userData,payloadData, callback) {
         }
       });
     },
-    function(cb){
+    function (cb) {
       var projection = {
         __v: 0,
       }
-      Service.UserService.getUserExtended({userId : customerData._id}, projection, {lean : true}, function(err,data){
-        if(err) cb(err)
-        else{
-          if(data == null || data.length == 0)
-          {
+      Service.UserService.getUserExtended({
+        userId: customerData._id
+      }, projection, {
+        lean: true
+      }, function (err, data) {
+        if (err) cb(err)
+        else {
+          if (data == null || data.length == 0) {
             var dataToSet = {
               userId: customerData._id
             }
@@ -1225,29 +1303,28 @@ var educationUserExtended = function (userData,payloadData, callback) {
                 extendedCustomerData = extendedCustomer;
                 cb();
               }
-            })  
-          }
-          else{
-            extendedCustomerData = data && data[0] || null ;
+            })
+          } else {
+            extendedCustomerData = data && data[0] || null;
             cb();
           }
         }
       })
     },
-    function(cb){
-      criteria={
+    function (cb) {
+      criteria = {
         _id: extendedCustomerData._id
       }
-      var dataToUpdate ={
-        $addToSet:{
-          education:payloadData.education
+      var dataToUpdate = {
+        $addToSet: {
+          education: payloadData.education
         }
       }
-      Service.UserService.updateUserExtended(criteria,dataToUpdate,{},function(err,data){
-        if(err) cb(err)
+      Service.UserService.updateUserExtended(criteria, dataToUpdate, {}, function (err, data) {
+        if (err) cb(err)
         else cb()
       })
-    }    
+    }
   ], function (err, data, user) {
     if (err) {
       return callback(err);
@@ -1261,13 +1338,13 @@ var educationUserExtended = function (userData,payloadData, callback) {
 var getUserExtended = function (userData, callback) {
   var accessToken = null;
   var extendedCustomerData = null;
-  var jobData ; 
+  var jobData;
   var appVersion = null;
   var customerData;
   var userdata = {}
   var userFound = null;
   async.series([
-    
+
     function (cb) {
       var query = {
         _id: userData._id
@@ -1278,7 +1355,9 @@ var getUserExtended = function (userData, callback) {
         accessToken: 0,
         codeUpdatedAt: 0
       };
-      var options = { lean: true };
+      var options = {
+        lean: true
+      };
       Service.UserService.getUser(query, projection, options, function (err, data) {
         if (err) {
           cb(err);
@@ -1291,33 +1370,364 @@ var getUserExtended = function (userData, callback) {
         }
       });
     },
-    function(cb){
+    function (cb) {
       var projection = {
         __v: 0,
       }
-      Service.UserService.getUserExtended({userId : customerData._id}, projection, {lean : true}, function(err,data){
-        if(err) cb(err)
-        else{
-          if(data == null || data.length == 0)
-          {
+      Service.UserService.getUserExtended({
+        userId: customerData._id
+      }, projection, {
+        lean: true
+      }, function (err, data) {
+        if (err) cb(err)
+        else {
+          if (data == null || data.length == 0) {
             cb(ERROR.DEFAULT)
-          }
-          else{
-            extendedCustomerData = data && data[0] || null ;
+          } else {
+            extendedCustomerData = data && data[0] || null;
             cb();
           }
         }
       })
-    },  
+    },
   ], function (err, data, user) {
     if (err) {
       return callback(err);
     } else {
-      return callback(null, {extendedCustomerData});
+      return callback(null, {
+        extendedCustomerData
+      });
     }
   });
 };
 
+
+
+var saveJob = function (userData, payloadData, callback) {
+  console.log('payload:', payloadData);
+  var accessToken = null;
+  var uniqueCode = null;
+  var extendedCustomerData = null;
+  var jobData;
+  var appVersion = null;
+  var customerData;
+  var userdata = {}
+  var userFound = null;
+  async.series([
+
+    function (cb) {
+      var query = {
+        _id: userData._id
+      };
+      var projection = {
+        __v: 0,
+        password: 0,
+        accessToken: 0,
+        codeUpdatedAt: 0
+      };
+      var options = {
+        lean: true
+      };
+      Service.UserService.getUser(query, projection, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+          else {
+            customerData = data && data[0] || null;
+            cb()
+          }
+        }
+      });
+    },
+    function (cb) {
+      var projection = {
+        __v: 0,
+      }
+      Service.UserService.getUserExtended({
+        userId: customerData._id
+      }, projection, {
+        lean: true
+      }, function (err, data) {
+        if (err) cb(err)
+        else {
+          if (data == null || data.length == 0) {
+            var dataToSet = {
+              userId: customerData._id
+            }
+            Service.UserService.createUserExtended(dataToSet, function (err, extendedCustomer) {
+              console.log('hello', err, extendedCustomer)
+              if (err) {
+                cb(err)
+              } else {
+                extendedCustomerData = extendedCustomer;
+                cb();
+              }
+            })
+          } else {
+            extendedCustomerData = data && data[0] || null;
+            cb();
+          }
+        }
+      })
+    },
+
+    function (cb) {
+      var projection = {
+        __v: 0,
+        employerId: 0,
+        password: 0,
+        accessToken: 0,
+        codeUpdatedAt: 0,
+      };
+      var options = {
+        lean: true
+      };
+      Service.OpportunityService.getOpportunity({
+        "_id": payloadData.opportunityId,
+        "active": true
+      }, projection, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data == null || data.length == 0) {
+            cb(ERROR.INVALID_OPPORTUNITY_ID)
+          } else {
+            jobsData = data;
+            cb()
+          }
+        }
+      });
+    },
+
+    function (cb) {
+      criteria = {
+        _id: extendedCustomerData._id
+      }
+      var dataToUpdate = {
+        $addToSet: {
+          savedJobs: payloadData.jobId
+        }
+      }
+      Service.UserService.updateUserExtended(criteria, dataToUpdate, {}, function (err, data) {
+        if (err) cb(err)
+        else cb()
+      })
+    }
+  ], function (err, data, user) {
+    if (err) {
+      return callback(err);
+    } else {
+      return callback(null, {});
+    }
+  });
+};
+
+
+var unSaveJob = function (userData, payloadData, callback) {
+  console.log('payload:', payloadData);
+  var accessToken = null;
+  var uniqueCode = null;
+  var extendedCustomerData = null;
+  var jobData;
+  var appVersion = null;
+  var customerData;
+  var userdata = {}
+  var userFound = null;
+  async.series([
+
+    function (cb) {
+      var query = {
+        _id: userData._id
+      };
+      var projection = {
+        __v: 0,
+        password: 0,
+        accessToken: 0,
+        codeUpdatedAt: 0
+      };
+      var options = {
+        lean: true
+      };
+      Service.UserService.getUser(query, projection, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+          else {
+            customerData = data && data[0] || null;
+            cb()
+          }
+        }
+      });
+    },
+    function (cb) {
+      var projection = {
+        __v: 0,
+      }
+      Service.UserService.getUserExtended({
+        userId: customerData._id
+      }, projection, {
+        lean: true
+      }, function (err, data) {
+        if (err) cb(err)
+        else {
+          if (data == null || data.length == 0) {
+            var dataToSet = {
+              userId: customerData._id
+            }
+            Service.UserService.createUserExtended(dataToSet, function (err, extendedCustomer) {
+              console.log('hello', err, extendedCustomer)
+              if (err) {
+                cb(err)
+              } else {
+                extendedCustomerData = extendedCustomer;
+                cb();
+              }
+            })
+          } else {
+            extendedCustomerData = data && data[0] || null;
+            cb();
+          }
+        }
+      })
+    },
+
+    function (cb) {
+      var projection = {
+        __v: 0,
+        employerId: 0,
+        password: 0,
+        accessToken: 0,
+        codeUpdatedAt: 0,
+      };
+      var options = {
+        lean: true
+      };
+      Service.OpportunityService.getOpportunity({
+        "_id": payloadData.opportunityId,
+        "active": true
+      }, projection, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data == null || data.length == 0) {
+            cb(ERROR.INVALID_OPPORTUNITY_ID)
+          } else {
+            jobsData = data;
+            cb()
+          }
+        }
+      });
+    },
+    function (cb) {
+      criteria = {
+        _id: extendedCustomerData._id
+      }
+      var dataToUpdate = {
+        $pull: {
+          savedJobs: payloadData.jobId
+        }
+      }
+      Service.UserService.updateUserExtended(criteria, dataToUpdate, {}, function (err, data) {
+        if (err) cb(err)
+        else cb()
+      })
+    }
+  ], function (err, data, user) {
+    if (err) {
+      return callback(err);
+    } else {
+      return callback(null, {});
+    }
+  });
+};
+
+
+var getSavedJobs = function (userData, callback) {
+  var accessToken = null;
+  var uniqueCode = null;
+  var extendedCustomerData = null;
+  var jobData;
+  var appVersion = null;
+  var customerData;
+  var userdata = {}
+  var userFound = null;
+  async.series([
+
+    function (cb) {
+      var query = {
+        _id: userData._id
+      };
+      var projection = {
+        __v: 0,
+        password: 0,
+        accessToken: 0,
+        codeUpdatedAt: 0
+      };
+      var options = {
+        lean: true
+      };
+      Service.UserService.getUser(query, projection, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+          else {
+            customerData = data && data[0] || null;
+            cb()
+          }
+        }
+      });
+    },
+    function (cb) {
+      var path = "savedJobs";
+      var select = "company positionTitle startDate endDate employmentType location seniority active description industryField";
+      var populate = {
+        path: path,
+        match: {},
+        select: select,
+        options: {
+          lean: true
+        }
+      };
+      var projection = {
+        __v: 0,
+        userId : 0,
+        volunteer : 0,
+        workExperience : 0,
+        education : 0
+      };
+
+      Service.UserService.getPopulatedSavedJobs({
+        userId: customerData._id
+      }, projection, populate, {}, {}, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data == null || data.length == 0) {
+            opportunityData = null
+            cb();
+          } else {
+            opportunityData = data;
+            console.log(opportunityData)
+            cb();
+          }
+        }
+      });
+    }
+
+
+  ], function (err, data, user) {
+    if (err) {
+      return callback(err);
+    } else {
+      return callback(null, {
+        opportunityData
+      });
+    }
+  });
+};
 
 module.exports = {
   createUser: createUser,
@@ -1332,8 +1742,11 @@ module.exports = {
   changePassword: changePassword,
   forgetPassword: forgetPassword,
   resetPassword: resetPassword,
-  volunteerUserExtended : volunteerUserExtended,
-  workExperienceUserExtended : workExperienceUserExtended,
-  educationUserExtended : educationUserExtended,
-  getUserExtended : getUserExtended
+  volunteerUserExtended: volunteerUserExtended,
+  workExperienceUserExtended: workExperienceUserExtended,
+  educationUserExtended: educationUserExtended,
+  getUserExtended: getUserExtended,
+  saveJob: saveJob,
+  unSaveJob: unSaveJob,
+  getSavedJobs: getSavedJobs
 };
