@@ -150,7 +150,11 @@ var createUser = function (payloadData, callback) {
       } else {
         cb(ERROR.IMP_ERROR)
       }
-    }
+    },
+
+    function(cb){
+
+    },
   ], function (err, data) {
     if (err) {
       return callback(err);
@@ -983,6 +987,333 @@ var resetPassword = function (payloadData, callbackRoute) {
   })
 }
 
+var volunteerUserExtended = function (userData,payloadData, callback) {
+  console.log('payload:', payloadData);
+  var accessToken = null;
+  var uniqueCode = null;
+  var extendedCustomerData = null;
+  var jobData ; 
+  var appVersion = null;
+  var customerData;
+  var userdata = {}
+  var userFound = null;
+  async.series([
+    
+    function (cb) {
+      var query = {
+        _id: userData._id
+      };
+      var projection = {
+        __v: 0,
+        password: 0,
+        accessToken: 0,
+        codeUpdatedAt: 0
+      };
+      var options = { lean: true };
+      Service.UserService.getUser(query, projection, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+          else {
+            customerData = data && data[0] || null;
+            cb()
+          }
+        }
+      });
+    },
+    function(cb){
+      var projection = {
+        __v: 0,
+      }
+      Service.UserService.getUserExtended({userId : customerData._id}, projection, {lean : true}, function(err,data){
+        if(err) cb(err)
+        else{
+          if(data == null || data.length == 0)
+          {
+            var dataToSet = {
+              userId: customerData._id
+            }
+            Service.UserService.createUserExtended(dataToSet, function (err, extendedCustomer) {
+              console.log('hello', err, extendedCustomer)
+              if (err) {
+                cb(err)
+              } else {
+                extendedCustomerData = extendedCustomer;
+                cb();
+              }
+            })  
+          }
+          else{
+            extendedCustomerData = data && data[0] || null ;
+            console.log('hello', err, extendedCustomerData)
+            cb();
+          }
+        }
+      })
+    },
+    function(cb){
+      criteria={
+        _id: extendedCustomerData._id
+      }
+      var dataToUpdate ={
+        $addToSet:{ volunteer : payloadData.volunteer
+        }
+      }
+      console.log('Update is happening');
+      Service.UserService.updateUserExtended(criteria,dataToUpdate,{},function(err,data){
+        if(err) cb(err)
+        else {
+            cb();
+            console.log('Updation done');
+          }
+      })
+    }    
+  ], function (err, data, user) {
+    if (err) {
+      return callback(err);
+    } else {
+      return callback(null, {});
+    }
+  });
+};
+
+var workExperienceUserExtended = function (userData,payloadData, callback) {
+  console.log('payload:', payloadData);
+  var accessToken = null;
+  var uniqueCode = null;
+  var extendedCustomerData = null;
+  var jobData ; 
+  var appVersion = null;
+  var customerData;
+  var userdata = {}
+  var userFound = null;
+  async.series([
+    
+    function (cb) {
+      var query = {
+        _id: userData._id
+      };
+      var projection = {
+        __v: 0,
+        password: 0,
+        accessToken: 0,
+        codeUpdatedAt: 0
+      };
+      var options = { lean: true };
+      Service.UserService.getUser(query, projection, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+          else {
+            customerData = data && data[0] || null;
+            cb()
+          }
+        }
+      });
+    },
+    function(cb){
+      var projection = {
+        __v: 0,
+      }
+      Service.UserService.getUserExtended({userId : customerData._id}, projection, {lean : true}, function(err,data){
+        if(err) cb(err)
+        else{
+          if(data == null || data.length == 0)
+          {
+            var dataToSet = {
+              userId: customerData._id
+            }
+            Service.UserService.createUserExtended(dataToSet, function (err, extendedCustomer) {
+              console.log('hello', err, extendedCustomer)
+              if (err) {
+                cb(err)
+              } else {
+                extendedCustomerData = extendedCustomer;
+                cb();
+              }
+            })  
+          }
+          else{
+            extendedCustomerData = data && data[0] || null ;
+            cb();
+          }
+        }
+      })
+    },
+    function(cb){
+      criteria={
+        _id: extendedCustomerData._id
+      }
+      var dataToUpdate ={
+        $addToSet:{
+          workExperience:payloadData.workExperience
+        }
+      }
+      Service.UserService.updateUserExtended(criteria,dataToUpdate,{},function(err,data){
+        if(err) cb(err)
+        else cb()
+      })
+    }    
+  ], function (err, data, user) {
+    if (err) {
+      return callback(err);
+    } else {
+      return callback(null, {});
+    }
+  });
+};
+
+var educationUserExtended = function (userData,payloadData, callback) {
+  console.log('payload:', payloadData);
+  var accessToken = null;
+  var uniqueCode = null;
+  var extendedCustomerData = null;
+  var jobData ; 
+  var appVersion = null;
+  var customerData;
+  var userdata = {}
+  var userFound = null;
+  async.series([
+    
+    function (cb) {
+      var query = {
+        _id: userData._id
+      };
+      var projection = {
+        __v: 0,
+        password: 0,
+        accessToken: 0,
+        codeUpdatedAt: 0
+      };
+      var options = { lean: true };
+      Service.UserService.getUser(query, projection, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+          else {
+            customerData = data && data[0] || null;
+            cb()
+          }
+        }
+      });
+    },
+    function(cb){
+      var projection = {
+        __v: 0,
+      }
+      Service.UserService.getUserExtended({userId : customerData._id}, projection, {lean : true}, function(err,data){
+        if(err) cb(err)
+        else{
+          if(data == null || data.length == 0)
+          {
+            var dataToSet = {
+              userId: customerData._id
+            }
+            Service.UserService.createUserExtended(dataToSet, function (err, extendedCustomer) {
+              console.log('hello', err, extendedCustomer)
+              if (err) {
+                cb(err)
+              } else {
+                extendedCustomerData = extendedCustomer;
+                cb();
+              }
+            })  
+          }
+          else{
+            extendedCustomerData = data && data[0] || null ;
+            cb();
+          }
+        }
+      })
+    },
+    function(cb){
+      criteria={
+        _id: extendedCustomerData._id
+      }
+      var dataToUpdate ={
+        $addToSet:{
+          education:payloadData.education
+        }
+      }
+      Service.UserService.updateUserExtended(criteria,dataToUpdate,{},function(err,data){
+        if(err) cb(err)
+        else cb()
+      })
+    }    
+  ], function (err, data, user) {
+    if (err) {
+      return callback(err);
+    } else {
+      return callback(null, {});
+    }
+  });
+};
+
+
+var getUserExtended = function (userData, callback) {
+  var accessToken = null;
+  var extendedCustomerData = null;
+  var jobData ; 
+  var appVersion = null;
+  var customerData;
+  var userdata = {}
+  var userFound = null;
+  async.series([
+    
+    function (cb) {
+      var query = {
+        _id: userData._id
+      };
+      var projection = {
+        __v: 0,
+        password: 0,
+        accessToken: 0,
+        codeUpdatedAt: 0
+      };
+      var options = { lean: true };
+      Service.UserService.getUser(query, projection, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+          else {
+            customerData = data && data[0] || null;
+            cb()
+          }
+        }
+      });
+    },
+    function(cb){
+      var projection = {
+        __v: 0,
+      }
+      Service.UserService.getUserExtended({userId : customerData._id}, projection, {lean : true}, function(err,data){
+        if(err) cb(err)
+        else{
+          if(data == null || data.length == 0)
+          {
+            cb(ERROR.DEFAULT)
+          }
+          else{
+            extendedCustomerData = data && data[0] || null ;
+            cb();
+          }
+        }
+      })
+    },  
+  ], function (err, data, user) {
+    if (err) {
+      return callback(err);
+    } else {
+      return callback(null, {extendedCustomerData});
+    }
+  });
+};
+
+
 module.exports = {
   createUser: createUser,
   verifyOTP: verifyOTP,
@@ -995,5 +1326,9 @@ module.exports = {
   getProfile: getProfile,
   changePassword: changePassword,
   forgetPassword: forgetPassword,
-  resetPassword: resetPassword
+  resetPassword: resetPassword,
+  volunteerUserExtended : volunteerUserExtended,
+  workExperienceUserExtended : workExperienceUserExtended,
+  educationUserExtended : educationUserExtended,
+  getUserExtended : getUserExtended
 };

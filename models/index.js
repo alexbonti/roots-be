@@ -8,5 +8,6 @@ module.exports = {
     Opportunities : require('./opportunities'),
     JobsApplied : require('./jobsApplied'),
     ForgetPassword: require('./forgotPasswordRequest'),
-    Company: require('./company')
+    Company: require('./company'),
+    UserExtended : require('./userExtended')
 };
