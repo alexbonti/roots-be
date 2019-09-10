@@ -41,6 +41,7 @@
     "moment": "2.24.0",
     "moment-range": "4.0.2",
     "mongoose": "^5.5.15",
+    "nodemailer": "^6.3.0",
     "randomstring": "1.1.5",
     "socket.io": "2.2.0",
     "underscore": "1.9.1",

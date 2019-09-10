@@ -11,9 +11,18 @@ var updateUser = function (criteria, dataToSet, options, callback) {
     options.new = true;
     Models.User.findOneAndUpdate(criteria, dataToSet, options, callback);
 };
+
+var updateUserExtended = function (criteria, dataToSet, options, callback) {
+    options.lean = true;
+    options.new = true;
+    Models.UserExtended.findOneAndUpdate(criteria, dataToSet, options, callback);
+};
 //Insert User in DB
 var createUser = function (objToSave, callback) {
     new Models.User(objToSave).save(callback)
+};
+var createUserExtended = function (objToSave, callback) {
+    new Models.UserExtended(objToSave).save(callback)
 };
 //Delete User in DB
 var deleteUser = function (criteria, callback) {
@@ -24,6 +33,11 @@ var deleteUser = function (criteria, callback) {
 var getUser = function (criteria, projection, options, callback) {
     options.lean = true;
     Models.User.find(criteria, projection, options, callback);
+};
+
+var getUserExtended = function (criteria, projection, options, callback) {
+    options.lean = true;
+    Models.UserExtended.find(criteria, projection, options, callback);
 };
 
 var getUserPromise = function (criteria, projection, options) {
@@ -62,11 +76,33 @@ var getAllGeneratedCodes = function (callback) {
     })
 };
 
+var getPopulatedSavedJobs = function(
+    criteria,
+    projection,
+    populate,
+    sortOptions,
+    setOptions,
+    callback
+  ) {
+    console.log("ok........", criteria, projection, populate);
+    Models.UserExtended.find(criteria)
+      .select(projection)
+      .populate(populate)
+      .sort(sortOptions)
+      .exec(function(err, result) {
+        callback(err, result);
+      });
+  };
+
 module.exports = {
     updateUser: updateUser,
     createUser: createUser,
     deleteUser: deleteUser,
     getUser: getUser,
     getAllGeneratedCodes: getAllGeneratedCodes,
-    getUserPromise: getUserPromise
+    getUserPromise: getUserPromise,
+    createUserExtended : createUserExtended,
+    updateUserExtended: updateUserExtended,
+    getUserExtended : getUserExtended,
+    getPopulatedSavedJobs : getPopulatedSavedJobs
 };

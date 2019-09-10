@@ -208,7 +208,7 @@ var getOTP = {
     },
     validate: {
       query: {
-        phoneNumber: Joi.string().regex(/^[0-9]+$/).min(5)
+        emailId: Joi.string().required()
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -377,7 +377,7 @@ var forgotPassword = {
     },
     validate: {
       payload: {
-        phoneNumber: Joi.string().regex(/^[0-9]+$/).min(5)
+        emailId: Joi.string().required()
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -411,7 +411,7 @@ var resetPassword = {
     validate: {
       payload: {
         password: Joi.string().min(6).required().trim(),
-        phoneNumber: Joi.string().regex(/^[0-9]+$/).min(5),
+        phoneNumber: Joi.string().required(),
         OTPCode: Joi.string().required()
       },
       failAction: UniversalFunctions.failActionFunction
@@ -422,6 +422,276 @@ var resetPassword = {
       }
     }
 
+  }
+};
+
+var volunteerUserExtended =
+{
+  method: 'PUT',
+  path: '/api/user/volunteerUserExtended',
+  config: {
+    description: 'Create/Update user volunteer profile',
+    tags: ['api', 'jobs'],
+    auth: 'UserAuth',
+    handler: function (request, reply) {
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+
+        Controller.UserBaseController.volunteerUserExtended(userData, request.payload, function (err, opportunity) {
+          if (!err) {
+            return resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, opportunity));
+          }
+          else {
+            return reject(UniversalFunctions.sendError(err));
+          }
+        });
+      })
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      payload: {
+        volunteer : [
+          {
+            volunteerTitle : Joi.string(),
+            companyName: Joi.string(),
+            startDate : Joi.date(),
+            endDate : Joi.date(),
+            description: Joi.string()
+          }
+        ],      
+      },
+      failAction: UniversalFunctions.failActionFunction
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+}
+
+
+var workExperienceUserExtended =
+{
+  method: 'PUT',
+  path: '/api/user/workExperienceUserExtended',
+  config: {
+    description: 'Create/Update user work experience profile',
+    tags: ['api', 'jobs'],
+    auth: 'UserAuth',
+    handler: function (request, reply) {
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+
+        Controller.UserBaseController.workExperienceUserExtended(userData, request.payload, function (err, opportunity) {
+          if (!err) {
+            return resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, opportunity));
+          }
+          else {
+            return reject(UniversalFunctions.sendError(err));
+          }
+        });
+      })
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      payload: {
+        workExperience: [
+          {
+              positionTitle: Joi.string(),
+              companyName: Joi.string(),
+              startDate : Joi.date(),
+              endDate : Joi.date(),
+              description: Joi.string()
+          }
+        ]      
+      },
+      failAction: UniversalFunctions.failActionFunction
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+}
+
+
+var educationUserExtended =
+{
+  method: 'PUT',
+  path: '/api/user/educationUserExtended',
+  config: {
+    description: 'Create/Update user education profile',
+    tags: ['api', 'jobs'],
+    auth: 'UserAuth',
+    handler: function (request, reply) {
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+
+        Controller.UserBaseController.educationUserExtended(userData, request.payload, function (err, opportunity) {
+          if (!err) {
+            return resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, opportunity));
+          }
+          else {
+            return reject(UniversalFunctions.sendError(err));
+          }
+        });
+      })
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      payload: {
+      education : [
+          {
+              school: Joi.string(),
+              major: Joi.string(),
+              degree: Joi.string(),
+              startDate : Joi.date(),
+              endDate : Joi.date()
+          }
+        ]        
+      },
+      failAction: UniversalFunctions.failActionFunction
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+}
+
+
+
+var getUserExtended = {
+  method: 'GET',
+  path: '/api/user/getUserExtended',
+  config: {
+    description: 'get exptended profile of user',
+    auth: 'UserAuth',
+    tags: ['api', 'user'],
+    handler: function (request, reply) {
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+        Controller.UserBaseController.getUserExtended(userData, function (error, success) {
+          if (error) {
+            reject(UniversalFunctions.sendError(error));
+          } else {
+            resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, success));
+          }
+        });
+      })
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      failAction: UniversalFunctions.failActionFunction
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+};
+
+var saveJob = {
+  method: 'PUT',
+  path: '/api/user/saveJob',
+  config: {
+    description: 'Saves the job as wishlist',
+    auth: 'UserAuth',
+    tags: ['api', 'user'],
+    handler: function (request, reply) {
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+        Controller.UserBaseController.saveJob(userData,request.payload, function (error, success) {
+          if (error) {
+            reject(UniversalFunctions.sendError(error));
+          } else {
+            resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, success));
+          }
+        });
+      })
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      failAction: UniversalFunctions.failActionFunction,
+      payload : {
+        jobId : Joi.string().required()
+      }
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+};
+
+var unSaveJob = {
+  method: 'PUT',
+  path: '/api/user/unSaveJob',
+  config: {
+    description: 'Unsaves the job from wishlist',
+    auth: 'UserAuth',
+    tags: ['api', 'user'],
+    handler: function (request, reply) {
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+        Controller.UserBaseController.unSaveJob(userData,request.payload, function (error, success) {
+          if (error) {
+            reject(UniversalFunctions.sendError(error));
+          } else {
+            resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, success));
+          }
+        });
+      })
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      failAction: UniversalFunctions.failActionFunction,
+      payload : {
+        jobId : Joi.string().required()
+      }
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+};
+
+
+var getSavedJobs = {
+  method: 'GET',
+  path: '/api/user/getSavedJobs',
+  config: {
+    description: 'Rereives the jobs saved by user',
+    auth: 'UserAuth',
+    tags: ['api', 'user'],
+    handler: function (request, reply) {
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+        Controller.UserBaseController.getSavedJobs(userData, function (error, success) {
+          if (error) {
+            reject(UniversalFunctions.sendError(error));
+          } else {
+            resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, success));
+          }
+        });
+      })
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      failAction: UniversalFunctions.failActionFunction,
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
   }
 };
 
@@ -438,6 +708,13 @@ var UserBaseRoute =
     getProfile,
     changePassword,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    volunteerUserExtended,
+    workExperienceUserExtended,
+    educationUserExtended,
+    getUserExtended,
+    saveJob,
+    unSaveJob,
+    getSavedJobs
   ]
 module.exports = UserBaseRoute;

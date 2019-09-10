@@ -30,7 +30,6 @@ var postOpportunities = {
       headers: UniversalFunctions.authorizationHeaderObj,
       failAction: UniversalFunctions.failActionFunction,
       payload: {
-        company: Joi.string().required(),
         positionTitle: Joi.string().required(),
         employmentType: Joi.string().required(),
         skills : Joi.array().required(),
@@ -105,7 +104,6 @@ var updateOpportunity =
       headers: UniversalFunctions.authorizationHeaderObj,
       payload: {
         opportunityId : Joi.string().required(),
-        company: Joi.string().required(),
         positionTitle: Joi.string().required(),
         employmentType: Joi.string().required(),
         skills : Joi.array().required(),
