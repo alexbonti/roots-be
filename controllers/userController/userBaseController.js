@@ -114,7 +114,7 @@ var createUser = function (payloadData, callback) {
     },
     function (cb) {
 
-      NodeMailer.sendMail(payloadData.emailId, uniqueCode);
+      
       //Insert Into DB
       dataToSave.OTPCode = uniqueCode;
       // dataToSave.emailId = payloadData.emailId;
@@ -130,6 +130,7 @@ var createUser = function (payloadData, callback) {
           }
         } else {
           customerData = customerDataFromDB;
+          NodeMailer.sendMail(payloadData.emailId, uniqueCode);
           cb();
         }
       })
