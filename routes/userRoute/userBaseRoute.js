@@ -562,6 +562,45 @@ var educationUserExtended =
   }
 }
 
+var preferrencesUserExtended =
+{
+  method: 'PUT',
+  path: '/api/user/preferrencesUserExtended',
+  config: {
+    description: 'Create/Update user preferrences',
+    tags: ['api', 'jobs'],
+    auth: 'UserAuth',
+    handler: function (request, reply) {
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+
+        Controller.UserBaseController.preferrencesUserExtended(userData, request.payload, function (err, opportunity) {
+          if (!err) {
+            return resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, opportunity));
+          }
+          else {
+            return reject(UniversalFunctions.sendError(err));
+          }
+        });
+      })
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      payload: {
+          preferredLocation: Joi.string(),
+          skills: Joi.array(),
+          preferredIndustry: Joi.string(),     
+      },
+      failAction: UniversalFunctions.failActionFunction
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+}
+
 
 
 var getUserExtended = {
@@ -715,6 +754,7 @@ var UserBaseRoute =
     getUserExtended,
     saveJob,
     unSaveJob,
-    getSavedJobs
+    getSavedJobs,
+    preferrencesUserExtended
   ]
 module.exports = UserBaseRoute;
