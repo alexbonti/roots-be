@@ -8,7 +8,7 @@ var employer = new Schema({
   last_name: { type: String, trim: true, required: true },
   emailId: { type: String, trim: true, required: true, unique: true },
   companyId : {type: String, ref: "company" , default : null},
-  businessPhoneNumber : { type : Number , trim : true , required : true},
+  businessPhoneNumber : { type : Number , trim : true},
   accessToken: { type: String, trim: true, index: true, unique: true, sparse: true },
   password: { type: String },
   code: { type: String, trim: true },
