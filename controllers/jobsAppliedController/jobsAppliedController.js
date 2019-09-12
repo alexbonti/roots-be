@@ -289,7 +289,7 @@ var viewJobsPosted = function (userData, callback) {
 
 //View job applicants by specific job via access token
 var viewJobApplicants = function (userData, payloadData, callback) {
-  var opportunityData;
+  var opportunityData = [];
   var jobsData;
   async.series([
       function (cb) {
@@ -373,6 +373,37 @@ var viewJobApplicants = function (userData, payloadData, callback) {
             
           }
         });
+      },
+      function(cb){
+        if (opportunityData) {
+          var taskInParallel = [];
+          for (var key in opportunityData) {
+            (function (key) {
+              taskInParallel.push((function (key) {
+                return function (embeddedCB) {
+                  Service.UserService.getUserExtended({ userId : opportunityData[key].candidateId._id},{},{}, function (err, data) {
+                    if (err) {
+                      embeddedCB(err)
+                    } else {
+                      if(data.length !=0)
+                      {opportunityData[key].UserExtendedProfile = data && data[0] || null;
+                        console.log("Not Null",data[0])
+                      embeddedCB()}
+                      else{
+                        opportunityData[key].UserExtendedProfile = null;
+                        console.log("null")
+                        embeddedCB()
+                      }
+                    }
+                  })
+                }
+              })(key))
+            }(key));
+          }
+          async.parallel(taskInParallel, function (err, result) {
+            cb(null);
+          });
+        }
       }
     ],
     function (error, result) {
