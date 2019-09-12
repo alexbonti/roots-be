@@ -164,11 +164,7 @@ var createUser = function (payloadData, callback) {
       } else {
         cb(ERROR.IMP_ERROR)
       }
-    },
-
-    function (cb) {
-
-    },
+    }
   ], function (err, data) {
     if (err) {
       return callback(err);
