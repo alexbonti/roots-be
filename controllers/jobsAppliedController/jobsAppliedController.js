@@ -290,7 +290,6 @@ var viewJobsPosted = function (userData, callback) {
 //View job applicants by specific job via access token
 var viewJobApplicants = function (userData, payloadData, callback) {
   var opportunityData;
-  var jobsData;
   async.series([
       function (cb) {
         var query = {
@@ -305,34 +304,6 @@ var viewJobApplicants = function (userData, payloadData, callback) {
           } else {
             if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
             else cb()
-          }
-        });
-      },
-
-      function (cb) {
-        var projection = {
-          __v: 0,
-          employerId: 0,
-          password: 0,
-          accessToken: 0,
-          codeUpdatedAt: 0,
-        };
-        var options = {
-          lean: true
-        };
-        Service.OpportunityService.getOpportunity({
-          "_id": payloadData.opportunityId,
-          "active": true
-        }, projection, options, function (err, data) {
-          if (err) {
-            cb(err);
-          } else {
-            if (data == null || data.length == 0) {
-              cb(ERROR.INVALID_OPPORTUNITY_ID)
-            } else {
-              jobsData = data;
-              cb()
-            }
           }
         });
       },
@@ -360,19 +331,44 @@ var viewJobApplicants = function (userData, payloadData, callback) {
           if (err) {
             cb(err);
           } else {
-            if(data == null || data.length == 0)
-            {
-              opportunityData = jobsData
-              cb();
-            }
-            else{
             opportunityData = data;
-            console.log(opportunityData)
             cb();
-            }
-            
           }
         });
+      },
+      function(cb){
+        if (opportunityData) {
+          var taskInParallel = [];
+          for (var key in opportunityData) {
+            (function (key) {
+              taskInParallel.push((function (key) {
+                return function (embeddedCB) {
+                  Service.UserService.getUserExtended({ userId : opportunityData[key].candidateId._id},{},{}, function (err, data) {
+                    if (err) {
+                      embeddedCB(err)
+                    } else {
+                      if(data.length !=0)
+                      {
+                        console.log(">>>>>>>>")
+                        opportunityData[key].candidateId.UserExtendedProfile = data[0];
+                    }
+                    else{
+                      opportunityData[key].candidateId.UserExtendedProfile = null;
+                    }
+                    embeddedCB()
+                    }
+                  })
+                }
+              })(key))
+            }(key));
+          }
+          async.parallel(taskInParallel, function (err, result) {
+            cb(null);
+          });
+        }
+        else {
+          cb()
+        }
       }
     ],
     function (error, result) {

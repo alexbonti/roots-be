@@ -5,6 +5,11 @@ var Schema = mongoose.Schema;
 var userExtended = new Schema({
     userId : { type: Schema.ObjectId, ref: "user" }, 
     savedJobs : [{ type: Schema.ObjectId, ref: "opportunity" }],
+    preferredLocation : {type : String, trim : true},
+    skills : [
+        { type : String , trim : true},
+    ],
+    preferredIndustry : {type : String, trim : true},
     volunteer : [
         {
             volunteerTitle: {type: String, trim: true},
