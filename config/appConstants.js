@@ -67,10 +67,10 @@ var STATUS_MSG = {
       customMessage: "Cannot Generate Unique Code, All combinations are used",
       type: "UNIQUE_CODE_LIMIT_REACHED"
     },
-    PHONE_NO_EXIST: {
+    EMAIL_NO_EXIST: {
       statusCode: 400,
-      customMessage: "Mobile No. Already Exist",
-      type: "PHONE_NO_EXIST"
+      customMessage: "Email Already Exist",
+      type: "EMAIL_NO_EXIST"
     },
     USERNAME_EXIST: {
       statusCode: 400,
@@ -113,10 +113,10 @@ var STATUS_MSG = {
       customMessage: "Linkedin Id Not Found",
       type: "LINKEDIN_ID_NOT_FOUND"
     },
-    PHONE_VERIFICATION_COMPLETE: {
+    EMAIL_VERIFICATION_COMPLETE: {
       statusCode: 400,
-      customMessage: "Your mobile number verification is already completed.",
-      type: "PHONE_VERIFICATION_COMPLETE"
+      customMessage: "Your Email verification is already completed.",
+      type: "EMAIL_VERIFICATION_COMPLETE"
     },
     OTP_CODE_NOT_FOUND: {
       statusCode: 400,
@@ -148,10 +148,10 @@ var STATUS_MSG = {
       customMessage: "User is not registered with us",
       type: "USER_NOT_REGISTERED"
     },
-    PHONE_VERIFICATION: {
+    EMAIL_VERIFICATION: {
       statusCode: 400,
-      customMessage: "Your mobile number verification is incomplete.",
-      type: " PHONE_VERIFICATION"
+      customMessage: "Your Email verification is incomplete.",
+      type: " EMAIL_VERIFICATION"
     },
     INCORRECT_ID: {
       statusCode: 401,
