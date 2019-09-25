@@ -34,7 +34,7 @@ var employerRegister = {
         first_name: Joi.string().regex(/^[a-zA-Z ]+$/).trim().min(2).required(),
         last_name: Joi.string().regex(/^[a-zA-Z ]+$/).trim().min(2).required(),
         emailId: Joi.string().required(),
-        businessPhoneNumber: Joi.string().regex(/^[0-9]{10}$/).trim().min(2).required(),
+        // businessPhoneNumber: Joi.string().regex(/^[0-9]{10}$/).trim().min(2).required(),
         password: Joi.string().optional().min(5).allow(''),
       },
       failAction: UniversalFunctions.failActionFunction
