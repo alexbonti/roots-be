@@ -1,8 +1,8 @@
 var Service = require('../../services');
-var UniversalFunctions = require('../../utils/UniversalFunctions');
+var UniversalFunctions = require('../../utils/universalFunctions');
 var async = require('async');
-var TokenManager = require('../../lib/TokenManager');
-var CodeGenerator = require('../../lib/CodeGenerator');
+var TokenManager = require('../../lib/tokenManager');
+var CodeGenerator = require('../../lib/codeGenerator');
 var ERROR = UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.ERROR;
 var _ = require('underscore');
 

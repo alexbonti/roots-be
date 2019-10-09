@@ -9,7 +9,7 @@ var Hapi = require("hapi");
 
 //Internal Dependencies
 var Config = require("./config");
-var Plugins = require("./Plugins");
+var Plugins = require("./plugins");
 var SocketManager = require("./lib/socketManager");
 var Routes = require("./routes");
 
