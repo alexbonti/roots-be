@@ -494,7 +494,8 @@ var logoutCustomer = function (employerData, callbackRoute) {
 
 //Get profile information via accesstoken
 var getProfile = function (employerData, callback) {
-  var customerData;
+  var customerData = [];
+  var DATA;
   async.series([
     function (cb) {
       var query = {
@@ -513,11 +514,27 @@ var getProfile = function (employerData, callback) {
         } else {
           if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
           else {
-            customerData = data && data[0] || null;
+            DATA = data && data[0] || null;
             cb()
           }
         }
       });
+    },
+
+    function (cb) {
+      if (DATA.companyId) {
+        Service.CompanyService.getCompany({ companyId: DATA.companyId }, { __v: 0 }, {}, function (err, data) {
+          if (err) cb(err)
+          else {
+            customerData.push(DATA);
+            customerData.push({ companyDetails: (data && data[0] || null) });
+            cb();
+          }
+        })
+      }
+      else {
+        customerData = DATA;
+      }
     }
 
   ], function (err, result) {
