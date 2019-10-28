@@ -470,6 +470,56 @@ var postDraftToOpportunities = {
   }
 };
 
+var updateShortListed = {
+  method: "PUT",
+  path: "/api/jobs/updateShortListed",
+  config: {
+    description: "update Short Listed",
+    tags: ["api", "jobs"],
+    auth: "UserAuth",
+    handler: function(request, reply) {
+      var userData =
+        (request.auth &&
+          request.auth.credentials &&
+          request.auth.credentials.userData) ||
+        null;
+      return new Promise((resolve, reject) => {
+        Controller.OpportunityController.updateShortListed(
+          userData,
+          request.payload,
+          function(err, opportunity) {
+            if (!err) {
+              return resolve(
+                UniversalFunctions.sendSuccess(
+                  UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS
+                    .DEFAULT,
+                  opportunity
+                )
+              );
+            } else {
+              return reject(UniversalFunctions.sendError(err));
+            }
+          }
+        );
+      });
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      payload: {
+        opportunityId: Joi.string().required(),
+        shortListed: Joi.array().required()
+      },
+      failAction: UniversalFunctions.failActionFunction
+    },
+    plugins: {
+      "hapi-swagger": {
+        responseMessages:
+          UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+};
+
 var JobRoute = [
   postOpportunities,
   viewOpportunities,
@@ -479,6 +529,7 @@ var JobRoute = [
   getOpportunityDraft,
   updateOpportunityDraft,
   deleteOpportunityDraft,
-  postDraftToOpportunities
+  postDraftToOpportunities,
+  updateShortListed,
 ];
 module.exports = JobRoute;

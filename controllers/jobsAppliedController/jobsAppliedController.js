@@ -309,7 +309,7 @@ var viewJobApplicants = function (userData, payloadData, callback) {
       },
       function (cb) {
         var path = "jobId candidateId";
-        var select = "company positionTitle startDate endDate employmentType location employerId first_name last_name emailId linkedinId";
+        var select = "company positionTitle startDate endDate employmentType location employerId shortListed first_name last_name emailId linkedinId";
         var populate = {
           path: path,
           match: {},

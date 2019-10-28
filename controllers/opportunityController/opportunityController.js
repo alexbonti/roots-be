@@ -687,6 +687,79 @@ var postDraftToOpportunities = function (userData,payloadData, callback) {
 };
 
 
+var updateShortListed = function (userData, payloadData, callbackRoute) {
+  var opportunityData;
+  async.series([
+    function (cb) {
+      var query = {
+        _id: userData._id
+      };
+      var options = { lean: true };
+      Service.EmployerService.getEmployer(query, {}, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+          else cb()
+        }
+      });
+    },
+    
+    function(cb)
+    {
+      var projection = {
+        __v: 0,
+        accessToken: 0,
+        codeUpdatedAt: 0
+      };
+      
+      var options = { lean: true };
+      Service.OpportunityService.getOpportunity({_id: payloadData.opportunityId , employerId : userData._id }, projection, options, function (err, data) {
+        if (err) {
+            cb(err);
+        } 
+        else {
+          if(data == null || data.length == 0)
+          {
+            cb(ERROR.INVALID_OPPORTUNITY_ID)
+          }
+          else{
+            opportunityData = data;
+            cb();
+          }
+        }
+      });
+    },
+
+    
+    function (callback) {
+        var dataToUpdate = { $set: {
+          shortListed: payloadData.shortListed
+        } };
+        var condition = { employerId: userData._id , _id : payloadData.opportunityId };
+        Service.OpportunityService.updateOpportunity(condition, dataToUpdate, {}, function (err, opportunity) {
+          if (err) {
+            callback(err)
+          } else {
+            if (!opportunity || opportunity.length == 0) {
+              callback(ERROR.INVALID_OPPORTUNITY_ID);
+            }
+            else {
+              callback(null);
+            }
+          }
+        });
+    }
+  ],
+    function (error, result) {
+      if (error) {
+        return callbackRoute(error);
+      } else {
+        return callbackRoute(null),{ opportunityData: opportunityData };
+      }
+    });
+}
+
 module.exports = {
     createOpportunity: createOpportunity, 
     getOpportunity: getOpportunity,
@@ -696,5 +769,6 @@ module.exports = {
     getOpportunityDraft : getOpportunityDraft,
     changeOpportunityDraft : changeOpportunityDraft,
     deleteOpportunityDraft : deleteOpportunityDraft,
-    postDraftToOpportunities: postDraftToOpportunities
+    postDraftToOpportunities: postDraftToOpportunities,
+    updateShortListed: updateShortListed,
 };
