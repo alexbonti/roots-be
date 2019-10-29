@@ -450,15 +450,15 @@ var volunteerUserExtended =
     validate: {
       headers: UniversalFunctions.authorizationHeaderObj,
       payload: {
-        volunteer : [
+        volunteer: [
           {
-            volunteerTitle : Joi.string(),
+            volunteerTitle: Joi.string(),
             companyName: Joi.string(),
-            startDate : Joi.date(),
-            endDate : Joi.date(),
+            startDate: Joi.date(),
+            endDate: Joi.date(),
             description: Joi.string()
           }
-        ],      
+        ],
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -498,13 +498,13 @@ var workExperienceUserExtended =
       payload: {
         workExperience: [
           {
-              positionTitle: Joi.string(),
-              companyName: Joi.string(),
-              startDate : Joi.date(),
-              endDate : Joi.date(),
-              description: Joi.string()
+            positionTitle: Joi.string(),
+            companyName: Joi.string(),
+            startDate: Joi.date(),
+            endDate: Joi.date(),
+            description: Joi.string()
           }
-        ]      
+        ]
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -542,15 +542,15 @@ var educationUserExtended =
     validate: {
       headers: UniversalFunctions.authorizationHeaderObj,
       payload: {
-      education : [
+        education: [
           {
-              school: Joi.string(),
-              major: Joi.string(),
-              degree: Joi.string(),
-              startDate : Joi.date(),
-              endDate : Joi.date()
+            school: Joi.string(),
+            major: Joi.string(),
+            degree: Joi.string(),
+            startDate: Joi.date(),
+            endDate: Joi.date()
           }
-        ]        
+        ]
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -587,9 +587,9 @@ var preferrencesUserExtended =
     validate: {
       headers: UniversalFunctions.authorizationHeaderObj,
       payload: {
-          preferredLocation: Joi.string(),
-          skills: Joi.array(),
-          preferredIndustry: Joi.string(),     
+        preferredLocation: Joi.string(),
+        skills: Joi.array(),
+        preferredIndustry: Joi.string(),
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -644,7 +644,7 @@ var saveJob = {
     handler: function (request, reply) {
       var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
       return new Promise((resolve, reject) => {
-        Controller.UserBaseController.saveJob(userData,request.payload, function (error, success) {
+        Controller.UserBaseController.saveJob(userData, request.payload, function (error, success) {
           if (error) {
             reject(UniversalFunctions.sendError(error));
           } else {
@@ -656,8 +656,8 @@ var saveJob = {
     validate: {
       headers: UniversalFunctions.authorizationHeaderObj,
       failAction: UniversalFunctions.failActionFunction,
-      payload : {
-        jobId : Joi.string().required()
+      payload: {
+        jobId: Joi.string().required()
       }
     },
     plugins: {
@@ -678,7 +678,7 @@ var unSaveJob = {
     handler: function (request, reply) {
       var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
       return new Promise((resolve, reject) => {
-        Controller.UserBaseController.unSaveJob(userData,request.payload, function (error, success) {
+        Controller.UserBaseController.unSaveJob(userData, request.payload, function (error, success) {
           if (error) {
             reject(UniversalFunctions.sendError(error));
           } else {
@@ -690,8 +690,8 @@ var unSaveJob = {
     validate: {
       headers: UniversalFunctions.authorizationHeaderObj,
       failAction: UniversalFunctions.failActionFunction,
-      payload : {
-        jobId : Joi.string().required()
+      payload: {
+        jobId: Joi.string().required()
       }
     },
     plugins: {
@@ -734,6 +734,41 @@ var getSavedJobs = {
   }
 };
 
+var updateProfile = {
+  method: 'PUT',
+  path: '/api/user/updateProfile',
+  config: {
+    description: 'update Profile',
+    auth: 'UserAuth',
+    tags: ['api', 'user'],
+    handler: function (request, reply) {
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+        Controller.UserBaseController.updateProfile(userData, request.payload, function (error, success) {
+          if (error) {
+            reject(UniversalFunctions.sendError(error));
+          } else {
+            resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, success));
+          }
+        });
+      })
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      failAction: UniversalFunctions.failActionFunction,
+      payload: {
+        firstName: Joi.string().optional().allow(""),
+        lastName: Joi.string().optional().allow(""),
+        firstLogin: Joi.boolean().required()
+      }
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+};
 var UserBaseRoute =
   [
     userRegister,
@@ -755,6 +790,7 @@ var UserBaseRoute =
     saveJob,
     unSaveJob,
     getSavedJobs,
-    preferrencesUserExtended
+    preferrencesUserExtended,
+    updateProfile
   ]
 module.exports = UserBaseRoute;
