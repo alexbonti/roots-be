@@ -19,6 +19,7 @@ var createEmployer = function (payloadData, callback) {
   var customerData = null;
   var dataToUpdate = {};
   var appVersion = null;
+  var company;
   async.series([
     function (cb) {
       var query = {
@@ -58,6 +59,68 @@ var createEmployer = function (payloadData, callback) {
         }
       })
     },
+    function (cb) {
+      var projection = {
+        __v: 0,
+        password: 0,
+        codeUpdatedAt: 0,
+      };
+      var options = { lean: true };
+      company = ((String(payloadData.companyId)).replace(/\s/g, '')).toLowerCase();
+      Service.CompanyService.getCompany({ companyId: company }, projection, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data == null || data.length == 0) {
+            cb()
+          }
+          else {
+            cb(ERROR.COMPANY_ALREADY_EXISTS);
+          }
+        }
+      });
+    },
+    // function (cb) {
+    //   var dataToUpdate = { $set: { 'companyId': company } };
+    //   var condition = { companyId: null };
+    //   Service.EmployerService.updateEmployer(condition, dataToUpdate, {}, function (err, employer) {
+    //     console.log("customerData-------->>>" + JSON.stringify(employer));
+    //     if (err) {
+    //       cb(err);
+    //     } else {
+    //       if (!employer || employer.length == 0) {
+    //         cb(ERROR.COMPANY_ALREADY_ASSIGNED);
+    //       }
+    //       else {
+    //         cb(null);
+    //       }
+    //     }
+    //   });
+    // },
+
+
+    function (cb) {
+      var dataCompany = {
+        companyId: company,
+        companyName: payloadData.companyId,
+        companyLogo: "string",
+        location: "string",
+        companyIndustry: "string",
+        companyDescription: "string"
+      }
+
+      Service.CompanyService.createCompany(dataCompany, function (err, comanyDataFromDB) {
+        console.log('hello', err, comanyDataFromDB)
+        if (err) {
+          console.log(err)
+          cb(err)
+        } else {
+         var companyData = comanyDataFromDB;
+          cb();
+        }
+      })
+    },
+
     function (cb) {
       dataToSave.OTPCode = uniqueCode;
       dataToSave.registrationDate = new Date().toISOString();
@@ -883,7 +946,7 @@ var createCompany = function (userData, payloadData, callback) {
         codeUpdatedAt: 0,
       };
       var options = { lean: true };
-      company = ((String(payloadData.companyName)).replace(/\s/g, '')).toLowerCase();
+      company = ((String(payloadData.companyId)).replace(/\s/g, '')).toLowerCase();
       Service.CompanyService.getCompany({ companyId: company }, projection, options, function (err, data) {
         if (err) {
           cb(err);
