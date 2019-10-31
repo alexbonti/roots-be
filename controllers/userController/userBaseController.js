@@ -1825,7 +1825,7 @@ var saveJob = function(userData, payloadData, callback) {
         };
         Service.OpportunityService.getOpportunity(
           {
-            _id: payloadData.opportunityId,
+            _id: payloadData.jobId,
             active: true
           },
           projection,
