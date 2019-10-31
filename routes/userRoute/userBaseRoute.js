@@ -590,7 +590,7 @@ var preferrencesUserExtended =
         avatar: Joi.string(),
         preferredLocation: Joi.string(),
         skills: Joi.array(),
-        preferredIndustry: Joi.string(),
+        preferredIndustry: Joi.array(),
       },
       failAction: UniversalFunctions.failActionFunction
     },

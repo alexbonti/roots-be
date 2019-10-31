@@ -10,7 +10,7 @@ var userExtended = new Schema({
     skills : [
         { type : String , trim : true},
     ],
-    preferredIndustry : {type : String, trim : true},
+    preferredIndustry : [],
     volunteer : [
         {
             volunteerTitle: {type: String, trim: true},
