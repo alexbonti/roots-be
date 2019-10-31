@@ -758,8 +758,8 @@ var updateProfile = {
       headers: UniversalFunctions.authorizationHeaderObj,
       failAction: UniversalFunctions.failActionFunction,
       payload: {
-        firstName: Joi.string().optional().allow(""),
-        lastName: Joi.string().optional().allow(""),
+        first_name: Joi.string().optional().allow(""),
+        last_name: Joi.string().optional().allow(""),
         firstLogin: Joi.boolean().required()
       }
     },
