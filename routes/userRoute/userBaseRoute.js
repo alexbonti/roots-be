@@ -587,10 +587,49 @@ var preferrencesUserExtended =
     validate: {
       headers: UniversalFunctions.authorizationHeaderObj,
       payload: {
-        avatar: Joi.string(),
-        preferredLocation: Joi.string(),
-        skills: Joi.array(),
-        preferredIndustry: Joi.array(),
+          preferredLocation: Joi.string(),
+          skills: Joi.array(),
+          preferredIndustry: Joi.string(),
+          resumeURL: Joi.string().optional().allow(""),
+          coverLetter: Joi.string().optional().allow("")
+      },
+      failAction: UniversalFunctions.failActionFunction
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+}
+
+var uploadNewResumeAndCoverLetter =
+{
+  method: 'PUT',
+  path: '/api/user/uploadNewResumeAndCoverLetter',
+  config: {
+    description: 'upload New Resume And Cover Letter',
+    tags: ['api', 'jobs'],
+    auth: 'UserAuth',
+    handler: function (request, reply) {
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+
+        Controller.UserBaseController.uploadNewResumeAndCoverLetter(userData, request.payload, function (err, opportunity) {
+          if (!err) {
+            return resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, opportunity));
+          }
+          else {
+            return reject(UniversalFunctions.sendError(err));
+          }
+        });
+      })
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      payload: {
+          resumeURL: Joi.string().optional().allow(""),
+          coverLetter: Joi.string().optional().allow("")
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -792,6 +831,7 @@ var UserBaseRoute =
     unSaveJob,
     getSavedJobs,
     preferrencesUserExtended,
-    updateProfile
+    updateProfile,
+    uploadNewResumeAndCoverLetter
   ]
 module.exports = UserBaseRoute;
