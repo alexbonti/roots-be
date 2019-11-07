@@ -589,7 +589,7 @@ var preferrencesUserExtended =
       payload: {
           preferredLocation: Joi.string(),
           skills: Joi.array(),
-          preferredIndustry: Joi.string(),
+          preferredIndustry: Joi.array(),
           resumeURL: Joi.string().optional().allow(""),
           coverLetter: Joi.string().optional().allow("")
       },
