@@ -1326,6 +1326,164 @@ var volunteerUserExtended = function (userData, payloadData, callback) {
   );
 };
 
+var removeVolunteerExperience = function (userData, payloadData, callback) {
+  var extendedCustomerData = null;
+  var customerData;
+  async.series([
+
+    function (cb) {
+      var query = {
+        _id: userData._id
+      };
+      var projection = {
+        __v: 0,
+        password: 0,
+        accessToken: 0,
+        codeUpdatedAt: 0
+      };
+      var options = {
+        lean: true
+      };
+      Service.UserService.getUser(query, projection, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+          else {
+            customerData = data && data[0] || null;
+            cb()
+          }
+        }
+      });
+    },
+    function (cb) {
+      var projection = {
+        __v: 0,
+      }
+      Service.UserService.getUserExtended({
+        userId: customerData._id
+      }, projection, {
+        lean: true
+      }, function (err, data) {
+        if (err) cb(err)
+        else {
+          extendedCustomerData = data && data[0] || null;
+          cb();
+        }
+      })
+    },
+
+    function (cb) {
+      criteria = {
+        _id: extendedCustomerData._id,
+        volunteer: {
+          $elemMatch: {
+            _id: payloadData.volunteerId
+          }
+        }
+      }
+      var dataToUpdate = {
+        $pull: {
+          volunteer: {
+            _id: payloadData.volunteerId
+          },
+        }
+      }
+      Service.UserService.updateUserExtended(criteria, dataToUpdate, {}, function (err, data) {
+        if (err) cb(err)
+        else cb()
+      })
+    }
+  ], function (err, data, user) {
+    if (err) {
+      return callback(err);
+    } else {
+      return callback(null, {});
+    }
+  });
+};
+
+var editVolunteerExperience = function (userData, payloadData, callback) {
+  var extendedCustomerData = null;
+  var customerData;
+  async.series([
+
+    function (cb) {
+      var query = {
+        _id: userData._id
+      };
+      var projection = {
+        __v: 0,
+        password: 0,
+        accessToken: 0,
+        codeUpdatedAt: 0
+      };
+      var options = {
+        lean: true
+      };
+      Service.UserService.getUser(query, projection, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+          else {
+            customerData = data && data[0] || null;
+            cb()
+          }
+        }
+      });
+    },
+    function (cb) {
+      var projection = {
+        __v: 0,
+      }
+      Service.UserService.getUserExtended({
+        userId: customerData._id
+      }, projection, {
+        lean: true
+      }, function (err, data) {
+        if (err) cb(err)
+        else {
+          extendedCustomerData = data && data[0] || null;
+          cb();
+        }
+      })
+    },
+
+    function (cb) {
+      criteria = {
+        _id: extendedCustomerData._id,
+        volunteer: {
+          $elemMatch: {
+            _id: payloadData.volunteerId
+          }
+        }
+      }
+      var dataToUpdate = {
+        $set: {
+          "volunteer.$.volunteerTitle": payloadData.volunteerTitle,
+          "volunteer.$.companyName": payloadData.companyName,
+          "volunteer.$.startDate": payloadData.startDate,
+          "volunteer.$.endDate": payloadData.endDate,
+          "volunteer.$.description": payloadData.description,
+        }
+      }
+      Service.UserService.updateUserExtended(criteria, dataToUpdate, {}, function (err, data) {
+        if (err) cb(err)
+        else {
+          cb()
+        }
+      })
+    }
+  ], function (err, data, user) {
+    if (err) {
+      return callback(err);
+    } else {
+      return callback(null, {});
+    }
+  });
+};
+
 var workExperienceUserExtended = function (userData, payloadData, callback) {
   console.log("payload:", payloadData);
   var accessToken = null;
@@ -1435,6 +1593,164 @@ var workExperienceUserExtended = function (userData, payloadData, callback) {
   );
 };
 
+var removeWorkExperience = function (userData, payloadData, callback) {
+  var extendedCustomerData = null;
+  var customerData;
+  async.series([
+
+    function (cb) {
+      var query = {
+        _id: userData._id
+      };
+      var projection = {
+        __v: 0,
+        password: 0,
+        accessToken: 0,
+        codeUpdatedAt: 0
+      };
+      var options = {
+        lean: true
+      };
+      Service.UserService.getUser(query, projection, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+          else {
+            customerData = data && data[0] || null;
+            cb()
+          }
+        }
+      });
+    },
+    function (cb) {
+      var projection = {
+        __v: 0,
+      }
+      Service.UserService.getUserExtended({
+        userId: customerData._id
+      }, projection, {
+        lean: true
+      }, function (err, data) {
+        if (err) cb(err)
+        else {
+          extendedCustomerData = data && data[0] || null;
+          cb();
+        }
+      })
+    },
+
+    function (cb) {
+      criteria = {
+        _id: extendedCustomerData._id,
+        workExperience: {
+          $elemMatch: {
+            _id: payloadData.workExperienceId
+          }
+        }
+      }
+      var dataToUpdate = {
+        $pull: {
+          workExperience: {
+            _id: payloadData.workExperienceId
+          },
+        }
+      }
+      Service.UserService.updateUserExtended(criteria, dataToUpdate, {}, function (err, data) {
+        if (err) cb(err)
+        else cb()
+      })
+    }
+  ], function (err, data, user) {
+    if (err) {
+      return callback(err);
+    } else {
+      return callback(null, {});
+    }
+  });
+};
+
+var editWorkExperience = function (userData, payloadData, callback) {
+  var extendedCustomerData = null;
+  var customerData;
+  async.series([
+
+    function (cb) {
+      var query = {
+        _id: userData._id
+      };
+      var projection = {
+        __v: 0,
+        password: 0,
+        accessToken: 0,
+        codeUpdatedAt: 0
+      };
+      var options = {
+        lean: true
+      };
+      Service.UserService.getUser(query, projection, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+          else {
+            customerData = data && data[0] || null;
+            cb()
+          }
+        }
+      });
+    },
+    function (cb) {
+      var projection = {
+        __v: 0,
+      }
+      Service.UserService.getUserExtended({
+        userId: customerData._id
+      }, projection, {
+        lean: true
+      }, function (err, data) {
+        if (err) cb(err)
+        else {
+          extendedCustomerData = data && data[0] || null;
+          cb();
+        }
+      })
+    },
+
+    function (cb) {
+      criteria = {
+        _id: extendedCustomerData._id,
+        workExperience: {
+          $elemMatch: {
+            _id: payloadData.workExperienceId
+          }
+        }
+      }
+      var dataToUpdate = {
+        $set: {
+          "workExperience.$.positionTitle": payloadData.positionTitle,
+          "workExperience.$.companyName": payloadData.companyName,
+          "workExperience.$.startDate": payloadData.startDate,
+          "workExperience.$.endDate": payloadData.endDate,
+          "workExperience.$.description": payloadData.description,
+        }
+      }
+      Service.UserService.updateUserExtended(criteria, dataToUpdate, {}, function (err, data) {
+        if (err) cb(err)
+        else {
+          cb()
+        }
+      })
+    }
+  ], function (err, data, user) {
+    if (err) {
+      return callback(err);
+    } else {
+      return callback(null, {});
+    }
+  });
+};
+
 var educationUserExtended = function (userData, payloadData, callback) {
   console.log("payload:", payloadData);
   var accessToken = null;
@@ -1542,6 +1858,164 @@ var educationUserExtended = function (userData, payloadData, callback) {
       }
     }
   );
+};
+
+var removeEducation = function (userData, payloadData, callback) {
+  var extendedCustomerData = null;
+  var customerData;
+  async.series([
+
+    function (cb) {
+      var query = {
+        _id: userData._id
+      };
+      var projection = {
+        __v: 0,
+        password: 0,
+        accessToken: 0,
+        codeUpdatedAt: 0
+      };
+      var options = {
+        lean: true
+      };
+      Service.UserService.getUser(query, projection, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+          else {
+            customerData = data && data[0] || null;
+            cb()
+          }
+        }
+      });
+    },
+    function (cb) {
+      var projection = {
+        __v: 0,
+      }
+      Service.UserService.getUserExtended({
+        userId: customerData._id
+      }, projection, {
+        lean: true
+      }, function (err, data) {
+        if (err) cb(err)
+        else {
+          extendedCustomerData = data && data[0] || null;
+          cb();
+        }
+      })
+    },
+
+    function (cb) {
+      criteria = {
+        _id: extendedCustomerData._id,
+        education: {
+          $elemMatch: {
+            _id: payloadData.educationId
+          }
+        }
+      }
+      var dataToUpdate = {
+        $pull: {
+          education: {
+            _id: payloadData.educationId
+          },
+        }
+      }
+      Service.UserService.updateUserExtended(criteria, dataToUpdate, {}, function (err, data) {
+        if (err) cb(err)
+        else cb()
+      })
+    }
+  ], function (err, data, user) {
+    if (err) {
+      return callback(err);
+    } else {
+      return callback(null, {});
+    }
+  });
+};
+
+var editEducation = function (userData, payloadData, callback) {
+  var extendedCustomerData = null;
+  var customerData;
+  async.series([
+
+    function (cb) {
+      var query = {
+        _id: userData._id
+      };
+      var projection = {
+        __v: 0,
+        password: 0,
+        accessToken: 0,
+        codeUpdatedAt: 0
+      };
+      var options = {
+        lean: true
+      };
+      Service.UserService.getUser(query, projection, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+          else {
+            customerData = data && data[0] || null;
+            cb()
+          }
+        }
+      });
+    },
+    function (cb) {
+      var projection = {
+        __v: 0,
+      }
+      Service.UserService.getUserExtended({
+        userId: customerData._id
+      }, projection, {
+        lean: true
+      }, function (err, data) {
+        if (err) cb(err)
+        else {
+          extendedCustomerData = data && data[0] || null;
+          cb();
+        }
+      })
+    },
+
+    function (cb) {
+      criteria = {
+        _id: extendedCustomerData._id,
+        education: {
+          $elemMatch: {
+            _id: payloadData.educationId
+          }
+        }
+      }
+      var dataToUpdate = {
+        $set: {
+          "education.$.school": payloadData.school,
+          "education.$.major": payloadData.major,
+          "education.$.startDate": payloadData.startDate,
+          "education.$.endDate": payloadData.endDate,
+          "education.$.degree": payloadData.degree,
+        }
+      }
+      Service.UserService.updateUserExtended(criteria, dataToUpdate, {}, function (err, data) {
+        if (err) cb(err)
+        else {
+          cb()
+        }
+      })
+    }
+  ], function (err, data, user) {
+    if (err) {
+      return callback(err);
+    } else {
+      return callback(null, {});
+    }
+  });
 };
 
 var preferrencesUserExtended = function (userData, payloadData, callback) {
@@ -2284,5 +2758,11 @@ module.exports = {
   getSavedJobs: getSavedJobs,
   preferrencesUserExtended: preferrencesUserExtended,
   updateProfile: updateProfile,
-  uploadNewResumeAndCoverLetter: uploadNewResumeAndCoverLetter
+  uploadNewResumeAndCoverLetter: uploadNewResumeAndCoverLetter,
+  removeVolunteerExperience: removeVolunteerExperience,
+  editVolunteerExperience: editVolunteerExperience,
+  removeWorkExperience: removeWorkExperience,
+  editWorkExperience: editWorkExperience,
+  removeEducation: removeEducation,
+  editEducation: editEducation
 };

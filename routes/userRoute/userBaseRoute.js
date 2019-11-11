@@ -470,6 +470,84 @@ var volunteerUserExtended =
   }
 }
 
+var removeVolunteerExperience =
+{
+  method: 'PUT',
+  path: '/api/user/removeVolunteerExperience',
+  config: {
+    description: 'remove Volunteer Experience',
+    tags: ['api', 'jobs'],
+    auth: 'UserAuth',
+    handler: function (request, reply) {
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+
+        Controller.UserBaseController.removeVolunteerExperience(userData, request.payload, function (err, opportunity) {
+          if (!err) {
+            return resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, opportunity));
+          }
+          else {
+            return reject(UniversalFunctions.sendError(err));
+          }
+        });
+      })
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      payload: {
+        volunteerId: Joi.string(),
+      },
+      failAction: UniversalFunctions.failActionFunction
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+}
+
+var editVolunteerExperience =
+{
+  method: 'PUT',
+  path: '/api/user/editVolunteerExperience',
+  config: {
+    description: 'edit Volunteer Experience',
+    tags: ['api', 'jobs'],
+    auth: 'UserAuth',
+    handler: function (request, reply) {
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+
+        Controller.UserBaseController.editVolunteerExperience(userData, request.payload, function (err, opportunity) {
+          if (!err) {
+            return resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, opportunity));
+          }
+          else {
+            return reject(UniversalFunctions.sendError(err));
+          }
+        });
+      })
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      payload: {
+        volunteerId: Joi.string(),
+        volunteerTitle: Joi.string(),
+        companyName: Joi.string(),
+        startDate: Joi.date(),
+        endDate: Joi.date(),
+        description: Joi.string()
+      },
+      failAction: UniversalFunctions.failActionFunction
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+}
 
 var workExperienceUserExtended =
 {
@@ -505,6 +583,85 @@ var workExperienceUserExtended =
             description: Joi.string()
           }
         ]
+      },
+      failAction: UniversalFunctions.failActionFunction
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+}
+
+var removeWorkExperience =
+{
+  method: 'PUT',
+  path: '/api/user/removeWorkExperience',
+  config: {
+    description: 'remove Work Experience',
+    tags: ['api', 'jobs'],
+    auth: 'UserAuth',
+    handler: function (request, reply) {
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+
+        Controller.UserBaseController.removeWorkExperience(userData, request.payload, function (err, opportunity) {
+          if (!err) {
+            return resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, opportunity));
+          }
+          else {
+            return reject(UniversalFunctions.sendError(err));
+          }
+        });
+      })
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      payload: {
+        workExperienceId: Joi.string(),
+      },
+      failAction: UniversalFunctions.failActionFunction
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+}
+
+var editWorkExperience =
+{
+  method: 'PUT',
+  path: '/api/user/editWorkExperience',
+  config: {
+    description: 'edit work Experience',
+    tags: ['api', 'jobs'],
+    auth: 'UserAuth',
+    handler: function (request, reply) {
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+
+        Controller.UserBaseController.editWorkExperience(userData, request.payload, function (err, opportunity) {
+          if (!err) {
+            return resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, opportunity));
+          }
+          else {
+            return reject(UniversalFunctions.sendError(err));
+          }
+        });
+      })
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      payload: {
+        workExperienceId: Joi.string(),
+        positionTitle: Joi.string(),
+        companyName: Joi.string(),
+        startDate: Joi.date(),
+        endDate: Joi.date(),
+        description: Joi.string()
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -562,6 +719,85 @@ var educationUserExtended =
   }
 }
 
+var removeEducation =
+{
+  method: 'PUT',
+  path: '/api/user/removeEducation',
+  config: {
+    description: 'remove Education',
+    tags: ['api', 'jobs'],
+    auth: 'UserAuth',
+    handler: function (request, reply) {
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+
+        Controller.UserBaseController.removeEducation(userData, request.payload, function (err, opportunity) {
+          if (!err) {
+            return resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, opportunity));
+          }
+          else {
+            return reject(UniversalFunctions.sendError(err));
+          }
+        });
+      })
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      payload: {
+        educationId: Joi.string(),
+      },
+      failAction: UniversalFunctions.failActionFunction
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+}
+
+var editEducation =
+{
+  method: 'PUT',
+  path: '/api/user/editEducation',
+  config: {
+    description: 'edit Education',
+    tags: ['api', 'jobs'],
+    auth: 'UserAuth',
+    handler: function (request, reply) {
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+
+        Controller.UserBaseController.editEducation(userData, request.payload, function (err, opportunity) {
+          if (!err) {
+            return resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, opportunity));
+          }
+          else {
+            return reject(UniversalFunctions.sendError(err));
+          }
+        });
+      })
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      payload: {
+        educationId: Joi.string(),
+        school: Joi.string(),
+        major: Joi.string(),
+        startDate: Joi.date(),
+        endDate: Joi.date(),
+        degree: Joi.string()
+      },
+      failAction: UniversalFunctions.failActionFunction
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+}
+
 var preferrencesUserExtended =
 {
   method: 'PUT',
@@ -587,11 +823,11 @@ var preferrencesUserExtended =
     validate: {
       headers: UniversalFunctions.authorizationHeaderObj,
       payload: {
-          preferredLocation: Joi.string(),
-          skills: Joi.array(),
-          preferredIndustry: Joi.array(),
-          resumeURL: Joi.string().optional().allow(""),
-          coverLetter: Joi.string().optional().allow("")
+        preferredLocation: Joi.string(),
+        skills: Joi.array(),
+        preferredIndustry: Joi.array(),
+        resumeURL: Joi.string().optional().allow(""),
+        coverLetter: Joi.string().optional().allow("")
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -628,8 +864,8 @@ var uploadNewResumeAndCoverLetter =
     validate: {
       headers: UniversalFunctions.authorizationHeaderObj,
       payload: {
-          resumeURL: Joi.string().optional().allow(""),
-          coverLetter: Joi.string().optional().allow("")
+        resumeURL: Joi.string().optional().allow(""),
+        coverLetter: Joi.string().optional().allow("")
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -832,6 +1068,12 @@ var UserBaseRoute =
     getSavedJobs,
     preferrencesUserExtended,
     updateProfile,
-    uploadNewResumeAndCoverLetter
+    uploadNewResumeAndCoverLetter,
+    removeVolunteerExperience,
+    editVolunteerExperience,
+    removeWorkExperience,
+    editWorkExperience,
+    removeEducation,
+    editEducation
   ]
 module.exports = UserBaseRoute;
