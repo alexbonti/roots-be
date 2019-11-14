@@ -823,6 +823,7 @@ var preferrencesUserExtended =
     validate: {
       headers: UniversalFunctions.authorizationHeaderObj,
       payload: {
+        avatar: Joi.string(),
         preferredLocation: Joi.string(),
         skills: Joi.array(),
         preferredIndustry: Joi.array(),

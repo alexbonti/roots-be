@@ -2092,6 +2092,7 @@ var preferrencesUserExtended = function (userData, payloadData, callback) {
       }
       var dataToUpdate = {
         $set: {
+          avatarURL: payloadData.avatarURL,
           preferredLocation: payloadData.preferredLocation,
           skills: payloadData.skills,
           preferredIndustry: payloadData.preferredIndustry,
