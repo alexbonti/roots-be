@@ -2517,7 +2517,7 @@ var unSaveJob = function (userData, payloadData, callback) {
         };
         Service.OpportunityService.getOpportunity(
           {
-            _id: payloadData.opportunityId,
+            _id: payloadData.jobId,
             active: true
           },
           projection,
@@ -2537,6 +2537,7 @@ var unSaveJob = function (userData, payloadData, callback) {
         );
       },
       function (cb) {
+        console.log("Here",jobsData)
         criteria = {
           _id: extendedCustomerData._id
         };
