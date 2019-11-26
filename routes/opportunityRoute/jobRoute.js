@@ -86,24 +86,29 @@ var createOpportunityDraft = {
           request.auth.credentials.userData) ||
         null;
       return new Promise((resolve, reject) => {
-        Controller.OpportunityController.createOpportunityDraft(
-          userData,
-          payloadData,
-          function (err, data) {
-            console.log(">>>>>>>".err, data);
-            if (err) {
-              reject(UniversalFunctions.sendError(err));
-            } else {
-              resolve(
-                UniversalFunctions.sendSuccess(
-                  UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS
-                    .CREATED,
-                  data
-                )
-              );
+        if (!UniversalFunctions.validateLatLongValues(request.payload.latitude, request.payload.longitude)) {
+          reject(UniversalFunctions.sendError(Config.APP_CONSTANTS.STATUS_MSG.ERROR.INVALID_LAT_LONG));
+        }
+        else {
+          Controller.OpportunityController.createOpportunityDraft(
+            userData,
+            payloadData,
+            function (err, data) {
+              console.log(">>>>>>>".err, data);
+              if (err) {
+                reject(UniversalFunctions.sendError(err));
+              } else {
+                resolve(
+                  UniversalFunctions.sendSuccess(
+                    UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS
+                      .CREATED,
+                    data
+                  )
+                );
+              }
             }
-          }
-        );
+          );
+        }
       });
     },
     validate: {
@@ -118,7 +123,9 @@ var createOpportunityDraft = {
         endDate: Joi.date().required(),
         industryField: Joi.string().required(),
         description: Joi.string().required(),
-        location: Joi.string().required()
+        location: Joi.string().required(),
+        latitude: Joi.number().required(),
+        longitude: Joi.number().required()
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -157,6 +164,49 @@ var viewOpportunities = {
           }
         });
       });
+    },
+    plugins: {
+      "hapi-swagger": {
+        responseMessages:
+          UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+};
+
+var searchOpportunities = {
+  method: "GET",
+  path: "/api/jobs/searchOpportunities",
+  config: {
+    description: "search job opportunities",
+    tags: ["api", "jobs"],
+    handler: function (request, reply) {
+      return new Promise((resolve, reject) => {
+        Controller.OpportunityController.searchOpportunities(request.query, function (
+          error,
+          success
+        ) {
+          if (error) {
+            reject(UniversalFunctions.sendError(error));
+          } else {
+            resolve(
+              UniversalFunctions.sendSuccess(
+                UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS
+                  .DEFAULT,
+                success
+              )
+            );
+          }
+        });
+      });
+    },
+    validate: {
+      query: {
+        latitude: Joi.number().required(),
+        longitude: Joi.number().required(),
+        distance: Joi.number().required()
+      },
+      failAction: UniversalFunctions.failActionFunction
     },
     plugins: {
       "hapi-swagger": {
@@ -538,5 +588,6 @@ var JobRoute = [
   deleteOpportunityDraft,
   postDraftToOpportunities,
   updateShortListed,
+  searchOpportunities
 ];
 module.exports = JobRoute;

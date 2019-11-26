@@ -71,7 +71,7 @@ var createOpportunity = function (userData, payloadData, callback) {
         cb(ERROR.INVALID_COMPANY_ID)
       }
       else {
-        console.log(">>>>>>>>>",dataToSave)
+        console.log(">>>>>>>>>", dataToSave)
         dataToSave.employerId = customerData._id;
         dataToSave.company = customerData.companyId;
         dataToSave.publishDate = new Date().toISOString();
@@ -99,18 +99,15 @@ var createOpportunity = function (userData, payloadData, callback) {
 
 var createOpportunityDraft = function (userData, payloadData, callback) {
   console.log('payload:', payloadData);
-  var accessToken = null;
-  var uniqueCode = null;
   var dataToSave = payloadData;
-  console.log('payload Data:', payloadData);
-  if (dataToSave.password)
-    dataToSave.password = UniversalFunctions.CryptData(dataToSave.password);
   var opportunityData = null;
-  var jobData;
-  var appVersion = null;
   var customerData;
-  var userdata = {}
-  var userFound = null;
+  dataToSave.locationCoordinates = {
+    "coordinates": [payloadData.longitude, payloadData.latitude],
+    "type": "Point"
+  }
+  delete dataToSave["latitude"];
+  delete dataToSave["longitude"]
   async.series([
 
     function (cb) {
@@ -183,7 +180,7 @@ var createOpportunityDraft = function (userData, payloadData, callback) {
     if (err) {
       return callback(err);
     } else {
-      return callback(null, {});
+      return callback(null, { opportunityData: opportunityData });
     }
   });
 };
@@ -202,6 +199,47 @@ var getOpportunity = function (callback) {
       };
       var options = { lean: true };
       Service.OpportunityService.getOpportunity({ "active": true }, projection, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          opportunityData = data;
+          cb()
+        }
+      });
+    }
+
+  ], function (err, result) {
+    if (err) return callback(err)
+    else return callback(null, { opportunityData: opportunityData })
+  })
+}
+
+var searchOpportunities = function (payloadData,callback) {
+  var opportunityData;
+  async.series([
+    function (cb) {
+      var projection = {
+        __v: 0,
+        employerId: 0,
+        password: 0,
+        accessToken: 0,
+        codeUpdatedAt: 0,
+      };
+      var options = { lean: true };
+      var criteria = {
+        "active": true,
+        locationCoordinates: {
+          $near: {
+            $geometry: {
+              type: "Point",
+              coordinates: [payloadData.longitude, payloadData.latitude]
+            },
+            $maxDistance: payloadData.distance,
+            $minDistance: 0
+          }
+        }
+      }
+      Service.OpportunityService.getOpportunity(criteria, projection, options, function (err, data) {
         if (err) {
           cb(err);
         } else {
@@ -751,6 +789,7 @@ module.exports = {
   deleteOpportunity: deleteOpportunity,
   createOpportunityDraft: createOpportunityDraft,
   getOpportunityDraft: getOpportunityDraft,
+  searchOpportunities: searchOpportunities,
   changeOpportunityDraft: changeOpportunityDraft,
   deleteOpportunityDraft: deleteOpportunityDraft,
   postDraftToOpportunities: postDraftToOpportunities,
