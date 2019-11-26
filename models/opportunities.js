@@ -15,8 +15,12 @@ var opportunity = new Schema({
   industryField: { type: String, trim: true, required: true },
   description: { type: String, trim: true, required: true },
   location: { type: String, trim: true, required: true },
+  locationCoordinates: {
+    'type': { type: String, enum: "Point", default: "Point" },
+    coordinates: { type: [Number], default: [0, 0] }
+  },
   active: { type: Boolean, default: true },
   shortListed: [{ type: Schema.ObjectId, ref: "user" }]
 });
-
+opportunity.index({ locationCoordinates: '2dsphere' });
 module.exports = mongoose.model('opportunity', opportunity);

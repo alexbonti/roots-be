@@ -115,7 +115,7 @@ var createEmployer = function (payloadData, callback) {
           console.log(err)
           cb(err)
         } else {
-         var companyData = comanyDataFromDB;
+          var companyData = comanyDataFromDB;
           cb();
         }
       })
@@ -1075,6 +1075,7 @@ var updateCompany = function (userData, payloadData, callbackRoute) {
     },
 
     function (cb) {
+      console.log(((String(payloadData.companyId)).replace(/\s/g, '')).toLowerCase())
       var projection = {
         __v: 0,
         accessToken: 0,
@@ -1082,7 +1083,7 @@ var updateCompany = function (userData, payloadData, callbackRoute) {
       };
 
       var options = { lean: true };
-      Service.CompanyService.getCompany({ companyId: payloadData.companyId }, projection, options, function (err, data) {
+      Service.CompanyService.getCompany({ companyId: ((String(payloadData.companyId)).replace(/\s/g, '')).toLowerCase() }, projection, options, function (err, data) {
         if (err) {
           cb(err);
         }
@@ -1102,7 +1103,7 @@ var updateCompany = function (userData, payloadData, callbackRoute) {
     function (callback) {
       console.log(">>>>>>", companyData);
       var dataToUpdate = { $set: { 'companyName': payloadData.companyName, 'companyLogo': payloadData.companyLogo, 'location': payloadData.location, 'companyDescription': payloadData.companyDescription, 'companyIndustry': payloadData.companyIndustry } };
-      var condition = { companyId: payloadData.companyId, companyId: employerData.companyId };
+      var condition = { companyId: ((String(payloadData.companyId)).replace(/\s/g, '')).toLowerCase(), companyId: ((String(employerData.companyId)).replace(/\s/g, '')).toLowerCase() };
       Service.CompanyService.updateCompany(condition, dataToUpdate, {}, function (err, comp) {
         console.log("opportunityData-------->>>" + JSON.stringify(comp));
         if (err) {
