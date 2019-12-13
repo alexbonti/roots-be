@@ -7,7 +7,7 @@ var opportunity = new Schema({
   company: { type: String, trim: true, required: true },
   positionTitle: { type: String, trim: true, required: true },
   employmentType: { type: String, trim: true, required: true },
-  skills: [{ type: String, trim: true, required: true }],
+  skills: [{ type: String, trim: true}],
   seniority: { type: String, trim: true, required: true },
   startDate: { type: Date, default: Date.now },
   endDate: { type: Date, default: null },

@@ -308,7 +308,9 @@ var updateOpportunity = {
         endDate: Joi.date().required(),
         industryField: Joi.string().required(),
         description: Joi.string().required(),
-        location: Joi.string().required()
+        location: Joi.string().required(),
+        latitude: Joi.number().required(),
+        longitude: Joi.number().required()
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -366,7 +368,9 @@ var updateOpportunityDraft = {
         endDate: Joi.date().required(),
         industryField: Joi.string().required(),
         description: Joi.string().required(),
-        location: Joi.string().required()
+        location: Joi.string().required(),
+        latitude: Joi.number().required(),
+        longitude: Joi.number().required()
       },
       failAction: UniversalFunctions.failActionFunction
     },

@@ -103,10 +103,12 @@ var createEmployer = function (payloadData, callback) {
       var dataCompany = {
         companyId: company,
         companyName: payloadData.companyId,
-        companyLogo: "string",
-        location: "string",
-        companyIndustry: "string",
-        companyDescription: "string"
+        companyLogo: "https://s3.au-syd.cloud-object-storage.appdomain.cloud/refugee-bucket/image/profilePicture/thumb/Thumb_Profile_lFu6zRW9TBxB.png",
+        location: "Melbourne",
+        companyIndustry: "Science, Technology & Environment",
+        companyDescription: `<p>Non-governmental organizations, or NGOs, were first called such in Article 71 in the Charter of the newly formed United Nations in 1945. While NGOs have no fixed or formal definition, they are generally defined as nonprofit entities independent of governmental influence (although they may receive government funding).</p>
+        <p>As one  can tell from the basic definition above, the difference between nonprofit organizations (NPOs) and NGOs is slim. However, the term "NGO" is not typically applied to U.S.-based nonprofit organizations. Generally, the NGO label is given to organizations operating on an international level although some countries classify their own civil society groups as NGOs.</p>
+        <p><a href="http://guides.library.duke.edu/content.php?pid=256639&amp;sid=3292990" target="_blank" rel="noopener">NGO activities</a> include, but are not limited to, environmental, social, advocacy and human rights work. They can work to promote social or political change on a broad scale or very locally. NGOs play a critical part in developing society, improving communities, and promoting citizen participation.</p>`
       }
 
       Service.CompanyService.createCompany(dataCompany, function (err, comanyDataFromDB) {
