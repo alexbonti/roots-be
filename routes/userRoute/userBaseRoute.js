@@ -824,9 +824,9 @@ var preferrencesUserExtended =
       headers: UniversalFunctions.authorizationHeaderObj,
       payload: {
         avatar: Joi.string(),
-        preferredLocation: Joi.string(),
+        preferredLocation: Joi.string().optional().allow(""),
         skills: Joi.array(),
-        preferredIndustry: Joi.array(),
+        preferredIndustry: Joi.array().optional().allow(""),
         resumeURL: Joi.string().optional().allow(""),
         coverLetter: Joi.string().optional().allow("")
       },
