@@ -16,7 +16,8 @@ var user = new Schema({
   OTPCode: { type: String, trim: true },
   emailVerified: { type: Boolean, default: false },
   registrationDate: { type: Date, default: Date.now },
-  codeUpdatedAt: { type: Date, default: Date.now, required: true }
+  codeUpdatedAt: { type: Date, default: Date.now, required: true },
+  firstLogin: { type: Boolean, default: true }
 });
 
 module.exports = mongoose.model('user', user);

@@ -11,7 +11,7 @@ var postOpportunities = {
     description: "Post a new job opportunity",
     tags: ["api", "jobs"],
     auth: "UserAuth",
-    handler: function(request, h) {
+    handler: function (request, h) {
       var payloadData = request.payload;
       var userData =
         (request.auth &&
@@ -19,24 +19,29 @@ var postOpportunities = {
           request.auth.credentials.userData) ||
         null;
       return new Promise((resolve, reject) => {
-        Controller.OpportunityController.createOpportunity(
-          userData,
-          payloadData,
-          function(err, data) {
-            console.log(">>>>>>>".err, data);
-            if (err) {
-              reject(UniversalFunctions.sendError(err));
-            } else {
-              resolve(
-                UniversalFunctions.sendSuccess(
-                  UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS
-                    .CREATED,
-                  data
-                )
-              );
+        if (!UniversalFunctions.validateLatLongValues(request.payload.latitude, request.payload.longitude)) {
+          reject(UniversalFunctions.sendError(Config.APP_CONSTANTS.STATUS_MSG.ERROR.INVALID_LAT_LONG));
+        }
+        else {
+          Controller.OpportunityController.createOpportunity(
+            userData,
+            payloadData,
+            function (err, data) {
+              console.log(">>>>>>>".err, data);
+              if (err) {
+                reject(UniversalFunctions.sendError(err));
+              } else {
+                resolve(
+                  UniversalFunctions.sendSuccess(
+                    UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS
+                      .CREATED,
+                    data
+                  )
+                );
+              }
             }
-          }
-        );
+          );
+        }
       });
     },
     validate: {
@@ -51,7 +56,9 @@ var postOpportunities = {
         endDate: Joi.date().required(),
         industryField: Joi.string().required(),
         description: Joi.string().required(),
-        location: Joi.string().required()
+        location: Joi.string().required(),
+        latitude: Joi.number().required(),
+        longitude: Joi.number().required()
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -71,7 +78,7 @@ var createOpportunityDraft = {
     description: "Save as draft for later",
     tags: ["api", "jobs"],
     auth: "UserAuth",
-    handler: function(request, h) {
+    handler: function (request, h) {
       var payloadData = request.payload;
       var userData =
         (request.auth &&
@@ -79,24 +86,29 @@ var createOpportunityDraft = {
           request.auth.credentials.userData) ||
         null;
       return new Promise((resolve, reject) => {
-        Controller.OpportunityController.createOpportunityDraft(
-          userData,
-          payloadData,
-          function(err, data) {
-            console.log(">>>>>>>".err, data);
-            if (err) {
-              reject(UniversalFunctions.sendError(err));
-            } else {
-              resolve(
-                UniversalFunctions.sendSuccess(
-                  UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS
-                    .CREATED,
-                  data
-                )
-              );
+        if (!UniversalFunctions.validateLatLongValues(request.payload.latitude, request.payload.longitude)) {
+          reject(UniversalFunctions.sendError(Config.APP_CONSTANTS.STATUS_MSG.ERROR.INVALID_LAT_LONG));
+        }
+        else {
+          Controller.OpportunityController.createOpportunityDraft(
+            userData,
+            payloadData,
+            function (err, data) {
+              console.log(">>>>>>>".err, data);
+              if (err) {
+                reject(UniversalFunctions.sendError(err));
+              } else {
+                resolve(
+                  UniversalFunctions.sendSuccess(
+                    UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS
+                      .CREATED,
+                    data
+                  )
+                );
+              }
             }
-          }
-        );
+          );
+        }
       });
     },
     validate: {
@@ -111,7 +123,9 @@ var createOpportunityDraft = {
         endDate: Joi.date().required(),
         industryField: Joi.string().required(),
         description: Joi.string().required(),
-        location: Joi.string().required()
+        location: Joi.string().required(),
+        latitude: Joi.number().required(),
+        longitude: Joi.number().required()
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -131,9 +145,9 @@ var viewOpportunities = {
   config: {
     description: "get job opportunities",
     tags: ["api", "jobs"],
-    handler: function(request, reply) {
+    handler: function (request, reply) {
       return new Promise((resolve, reject) => {
-        Controller.OpportunityController.getOpportunity(function(
+        Controller.OpportunityController.getOpportunity(function (
           error,
           success
         ) {
@@ -160,6 +174,49 @@ var viewOpportunities = {
   }
 };
 
+var searchOpportunities = {
+  method: "GET",
+  path: "/api/jobs/searchOpportunities",
+  config: {
+    description: "search job opportunities",
+    tags: ["api", "jobs"],
+    handler: function (request, reply) {
+      return new Promise((resolve, reject) => {
+        Controller.OpportunityController.searchOpportunities(request.query, function (
+          error,
+          success
+        ) {
+          if (error) {
+            reject(UniversalFunctions.sendError(error));
+          } else {
+            resolve(
+              UniversalFunctions.sendSuccess(
+                UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS
+                  .DEFAULT,
+                success
+              )
+            );
+          }
+        });
+      });
+    },
+    validate: {
+      query: {
+        latitude: Joi.number().required(),
+        longitude: Joi.number().required(),
+        distance: Joi.number().required()
+      },
+      failAction: UniversalFunctions.failActionFunction
+    },
+    plugins: {
+      "hapi-swagger": {
+        responseMessages:
+          UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+};
+
 var getOpportunityDraft = {
   method: "GET",
   path: "/api/jobs/getOpportunityDraft",
@@ -167,14 +224,14 @@ var getOpportunityDraft = {
     description: "get job opportunities from draft",
     tags: ["api", "jobs"],
     auth: "UserAuth",
-    handler: function(request, reply) {
+    handler: function (request, reply) {
       var userData =
         (request.auth &&
           request.auth.credentials &&
           request.auth.credentials.userData) ||
         null;
       return new Promise((resolve, reject) => {
-        Controller.OpportunityController.getOpportunityDraft(userData, function(
+        Controller.OpportunityController.getOpportunityDraft(userData, function (
           error,
           success
         ) {
@@ -213,7 +270,7 @@ var updateOpportunity = {
     description: "Update job opportunity",
     tags: ["api", "jobs"],
     auth: "UserAuth",
-    handler: function(request, reply) {
+    handler: function (request, reply) {
       var userData =
         (request.auth &&
           request.auth.credentials &&
@@ -223,7 +280,7 @@ var updateOpportunity = {
         Controller.OpportunityController.changeOpportunity(
           userData,
           request.payload,
-          function(err, opportunity) {
+          function (err, opportunity) {
             if (!err) {
               return resolve(
                 UniversalFunctions.sendSuccess(
@@ -251,7 +308,9 @@ var updateOpportunity = {
         endDate: Joi.date().required(),
         industryField: Joi.string().required(),
         description: Joi.string().required(),
-        location: Joi.string().required()
+        location: Joi.string().required(),
+        latitude: Joi.number().required(),
+        longitude: Joi.number().required()
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -271,7 +330,7 @@ var updateOpportunityDraft = {
     description: "Update job opportunity",
     tags: ["api", "jobs"],
     auth: "UserAuth",
-    handler: function(request, reply) {
+    handler: function (request, reply) {
       var userData =
         (request.auth &&
           request.auth.credentials &&
@@ -281,7 +340,7 @@ var updateOpportunityDraft = {
         Controller.OpportunityController.changeOpportunityDraft(
           userData,
           request.payload,
-          function(err, opportunity) {
+          function (err, opportunity) {
             if (!err) {
               return resolve(
                 UniversalFunctions.sendSuccess(
@@ -309,7 +368,9 @@ var updateOpportunityDraft = {
         endDate: Joi.date().required(),
         industryField: Joi.string().required(),
         description: Joi.string().required(),
-        location: Joi.string().required()
+        location: Joi.string().required(),
+        latitude: Joi.number().required(),
+        longitude: Joi.number().required()
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -330,7 +391,7 @@ var deleteOpportunity = {
     description: "Delete job opportunity",
     tags: ["api", "jobs"],
     auth: "UserAuth",
-    handler: function(request, reply) {
+    handler: function (request, reply) {
       var userData =
         (request.auth &&
           request.auth.credentials &&
@@ -340,7 +401,7 @@ var deleteOpportunity = {
         Controller.OpportunityController.deleteOpportunity(
           userData,
           request.payload,
-          function(err, opportunity) {
+          function (err, opportunity) {
             if (!err) {
               return resolve(
                 UniversalFunctions.sendSuccess(
@@ -379,7 +440,7 @@ var deleteOpportunityDraft = {
     description: "Delete job opportunity",
     tags: ["api", "jobs"],
     auth: "UserAuth",
-    handler: function(request, reply) {
+    handler: function (request, reply) {
       var userData =
         (request.auth &&
           request.auth.credentials &&
@@ -389,7 +450,7 @@ var deleteOpportunityDraft = {
         Controller.OpportunityController.deleteOpportunityDraft(
           userData,
           request.payload,
-          function(err, opportunity) {
+          function (err, opportunity) {
             if (!err) {
               return resolve(
                 UniversalFunctions.sendSuccess(
@@ -428,7 +489,7 @@ var postDraftToOpportunities = {
     description: "Post draft to  job opportunity",
     tags: ["api", "jobs"],
     auth: "UserAuth",
-    handler: function(request, reply) {
+    handler: function (request, reply) {
       var userData =
         (request.auth &&
           request.auth.credentials &&
@@ -438,7 +499,7 @@ var postDraftToOpportunities = {
         Controller.OpportunityController.postDraftToOpportunities(
           userData,
           request.payload,
-          function(err, opportunity) {
+          function (err, opportunity) {
             if (!err) {
               return resolve(
                 UniversalFunctions.sendSuccess(
@@ -470,6 +531,56 @@ var postDraftToOpportunities = {
   }
 };
 
+var updateShortListed = {
+  method: "PUT",
+  path: "/api/jobs/updateShortListed",
+  config: {
+    description: "update Short Listed",
+    tags: ["api", "jobs"],
+    auth: "UserAuth",
+    handler: function (request, reply) {
+      var userData =
+        (request.auth &&
+          request.auth.credentials &&
+          request.auth.credentials.userData) ||
+        null;
+      return new Promise((resolve, reject) => {
+        Controller.OpportunityController.updateShortListed(
+          userData,
+          request.payload,
+          function (err, opportunity) {
+            if (!err) {
+              return resolve(
+                UniversalFunctions.sendSuccess(
+                  UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS
+                    .DEFAULT,
+                  opportunity
+                )
+              );
+            } else {
+              return reject(UniversalFunctions.sendError(err));
+            }
+          }
+        );
+      });
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      payload: {
+        opportunityId: Joi.string().required(),
+        shortListed: Joi.array().required()
+      },
+      failAction: UniversalFunctions.failActionFunction
+    },
+    plugins: {
+      "hapi-swagger": {
+        responseMessages:
+          UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+};
+
 var JobRoute = [
   postOpportunities,
   viewOpportunities,
@@ -479,6 +590,8 @@ var JobRoute = [
   getOpportunityDraft,
   updateOpportunityDraft,
   deleteOpportunityDraft,
-  postDraftToOpportunities
+  postDraftToOpportunities,
+  updateShortListed,
+  searchOpportunities
 ];
 module.exports = JobRoute;

@@ -183,26 +183,41 @@ var STATUS_MSG = {
       customMessage: "Job application already exists",
       type: "INVALID_JOB_APPLICATION"
     },
-    INVALID_JOB_DATA:{
+    INVALID_JOB_DATA: {
       statusCode: 400,
       customMessage: "Job does not exist",
       type: "INVALID_JOB_DATA"
     },
-    INVALID_COMPANY_ID:{
+    INVALID_COMPANY_ID: {
       statusCode: 400,
       customMessage: "Company does not exist or is not associated with your account",
       type: "INVALID_COMPANY_ID"
     },
-    COMPANY_ALREADY_EXISTS:{
+    COMPANY_ALREADY_EXISTS: {
       statusCode: 400,
       customMessage: "Company with the same name already exists",
       type: "COMPANY_ALREADY_EXISTS"
     },
-    COMPANY_ALREADY_ASSIGNED:{
+    COMPANY_ALREADY_ASSIGNED: {
       statusCode: 400,
       customMessage: "Employer can have only one company",
       type: "COMPANY_ALREADY_ASSIGNED"
-    }
+    },
+    INVALID_LAT_LONG: {
+      statusCode: 400,
+      customMessage: 'Invalid latitude and longitude entered',
+      type: 'INVALID_LAT_LONG'
+    },
+    DB_ERROR: {
+      statusCode:400,
+      customMessage : 'DB Error : ',
+      type : 'DB_ERROR'
+  },
+  APP_ERROR: {
+      statusCode:400,
+      customMessage : 'Application error',
+      type : 'APP_ERROR'
+  },
 
 
   },
@@ -237,7 +252,7 @@ var STATUS_MSG = {
       customMessage: "Password Reset Successfully",
       type: "PASSWORD_RESET"
     },
-    NO_JOB_APPLICATIONS:{
+    NO_JOB_APPLICATIONS: {
       statusCode: 200,
       customMessage: "No applications for this job yet",
       type: "NO_JOB_APPLICATIONS"

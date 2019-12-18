@@ -19,6 +19,7 @@ var createEmployer = function (payloadData, callback) {
   var customerData = null;
   var dataToUpdate = {};
   var appVersion = null;
+  var company;
   async.series([
     function (cb) {
       var query = {
@@ -58,6 +59,70 @@ var createEmployer = function (payloadData, callback) {
         }
       })
     },
+    function (cb) {
+      var projection = {
+        __v: 0,
+        password: 0,
+        codeUpdatedAt: 0,
+      };
+      var options = { lean: true };
+      company = ((String(payloadData.companyId)).replace(/\s/g, '')).toLowerCase();
+      Service.CompanyService.getCompany({ companyId: company }, projection, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data == null || data.length == 0) {
+            cb()
+          }
+          else {
+            cb(ERROR.COMPANY_ALREADY_EXISTS);
+          }
+        }
+      });
+    },
+    // function (cb) {
+    //   var dataToUpdate = { $set: { 'companyId': company } };
+    //   var condition = { companyId: null };
+    //   Service.EmployerService.updateEmployer(condition, dataToUpdate, {}, function (err, employer) {
+    //     console.log("customerData-------->>>" + JSON.stringify(employer));
+    //     if (err) {
+    //       cb(err);
+    //     } else {
+    //       if (!employer || employer.length == 0) {
+    //         cb(ERROR.COMPANY_ALREADY_ASSIGNED);
+    //       }
+    //       else {
+    //         cb(null);
+    //       }
+    //     }
+    //   });
+    // },
+
+
+    function (cb) {
+      var dataCompany = {
+        companyId: company,
+        companyName: payloadData.companyId,
+        companyLogo: "https://s3.au-syd.cloud-object-storage.appdomain.cloud/refugee-bucket/image/profilePicture/thumb/Thumb_Profile_lFu6zRW9TBxB.png",
+        location: "Melbourne",
+        companyIndustry: "Science, Technology & Environment",
+        companyDescription: `<p>Non-governmental organizations, or NGOs, were first called such in Article 71 in the Charter of the newly formed United Nations in 1945. While NGOs have no fixed or formal definition, they are generally defined as nonprofit entities independent of governmental influence (although they may receive government funding).</p>
+        <p>As one  can tell from the basic definition above, the difference between nonprofit organizations (NPOs) and NGOs is slim. However, the term "NGO" is not typically applied to U.S.-based nonprofit organizations. Generally, the NGO label is given to organizations operating on an international level although some countries classify their own civil society groups as NGOs.</p>
+        <p><a href="http://guides.library.duke.edu/content.php?pid=256639&amp;sid=3292990" target="_blank" rel="noopener">NGO activities</a> include, but are not limited to, environmental, social, advocacy and human rights work. They can work to promote social or political change on a broad scale or very locally. NGOs play a critical part in developing society, improving communities, and promoting citizen participation.</p>`
+      }
+
+      Service.CompanyService.createCompany(dataCompany, function (err, comanyDataFromDB) {
+        console.log('hello', err, comanyDataFromDB)
+        if (err) {
+          console.log(err)
+          cb(err)
+        } else {
+          var companyData = comanyDataFromDB;
+          cb();
+        }
+      })
+    },
+
     function (cb) {
       dataToSave.OTPCode = uniqueCode;
       dataToSave.registrationDate = new Date().toISOString();
@@ -494,7 +559,8 @@ var logoutCustomer = function (employerData, callbackRoute) {
 
 //Get profile information via accesstoken
 var getProfile = function (employerData, callback) {
-  var customerData;
+  var customerData = [];
+  var DATA;
   async.series([
     function (cb) {
       var query = {
@@ -513,11 +579,27 @@ var getProfile = function (employerData, callback) {
         } else {
           if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
           else {
-            customerData = data && data[0] || null;
+            DATA = data && data[0] || null;
             cb()
           }
         }
       });
+    },
+
+    function (cb) {
+      if (DATA.companyId) {
+        Service.CompanyService.getCompany({ companyId: DATA.companyId }, { __v: 0 }, {}, function (err, data) {
+          if (err) cb(err)
+          else {
+            customerData.push(DATA);
+            customerData.push({ companyDetails: (data && data[0] || null) });
+            cb();
+          }
+        })
+      }
+      else {
+        customerData = DATA;
+      }
     }
 
   ], function (err, result) {
@@ -866,7 +948,7 @@ var createCompany = function (userData, payloadData, callback) {
         codeUpdatedAt: 0,
       };
       var options = { lean: true };
-      company = ((String(payloadData.companyName)).replace(/\s/g, '')).toLowerCase();
+      company = ((String(payloadData.companyId)).replace(/\s/g, '')).toLowerCase();
       Service.CompanyService.getCompany({ companyId: company }, projection, options, function (err, data) {
         if (err) {
           cb(err);
@@ -995,6 +1077,7 @@ var updateCompany = function (userData, payloadData, callbackRoute) {
     },
 
     function (cb) {
+      console.log(((String(payloadData.companyId)).replace(/\s/g, '')).toLowerCase())
       var projection = {
         __v: 0,
         accessToken: 0,
@@ -1002,7 +1085,7 @@ var updateCompany = function (userData, payloadData, callbackRoute) {
       };
 
       var options = { lean: true };
-      Service.CompanyService.getCompany({ companyId: payloadData.companyId }, projection, options, function (err, data) {
+      Service.CompanyService.getCompany({ companyId: ((String(payloadData.companyId)).replace(/\s/g, '')).toLowerCase() }, projection, options, function (err, data) {
         if (err) {
           cb(err);
         }
@@ -1022,7 +1105,7 @@ var updateCompany = function (userData, payloadData, callbackRoute) {
     function (callback) {
       console.log(">>>>>>", companyData);
       var dataToUpdate = { $set: { 'companyName': payloadData.companyName, 'companyLogo': payloadData.companyLogo, 'location': payloadData.location, 'companyDescription': payloadData.companyDescription, 'companyIndustry': payloadData.companyIndustry } };
-      var condition = { companyId: payloadData.companyId, companyId: employerData.companyId };
+      var condition = { companyId: ((String(payloadData.companyId)).replace(/\s/g, '')).toLowerCase(), companyId: ((String(employerData.companyId)).replace(/\s/g, '')).toLowerCase() };
       Service.CompanyService.updateCompany(condition, dataToUpdate, {}, function (err, comp) {
         console.log("opportunityData-------->>>" + JSON.stringify(comp));
         if (err) {
