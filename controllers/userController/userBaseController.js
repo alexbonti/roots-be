@@ -631,7 +631,7 @@ var resendOTP = function (userData, callback) {
           lean: true
         };
         Service.UserService.updateUser(criteria, setQuery, options, cb);
-        NodeMailer.sendMail(payloadData.emailId, uniqueCode);
+        NodeMailer.sendMail(customerData.emailId, uniqueCode);
       }
     ],
     function (err, result) {
