@@ -411,7 +411,7 @@ var resetPassword = {
     validate: {
       payload: {
         password: Joi.string().min(6).required().trim(),
-        phoneNumber: Joi.string().required(),
+        emailId: Joi.string().required(),
         OTPCode: Joi.string().required()
       },
       failAction: UniversalFunctions.failActionFunction

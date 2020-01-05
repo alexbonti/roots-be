@@ -155,7 +155,7 @@ var STATUS_MSG = {
     },
     INCORRECT_ID: {
       statusCode: 401,
-      customMessage: "Incorrect Phone Number",
+      customMessage: "Incorrect Email Address",
       type: "INCORRECT_ID"
     },
     NOT_VERFIFIED: {
