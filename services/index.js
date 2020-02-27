@@ -6,5 +6,6 @@ module.exports = {
   OpportunityService: require('./oppurtunityService'),
   JobsAppliedService: require("./jobsService"),
   CompanyService: require("./companyService"),
-  OpportunityDraftService: require('./opportunityDraftService')
+  OpportunityDraftService: require('./opportunityDraftService'),
+  ForgetPasswordRequestsEmployerService: require("./forgetPasswordRequestEmployerService")
 };

@@ -325,7 +325,7 @@ var updateOpportunity = {
 
 var updateOpportunityDraft = {
   method: "PUT",
-  path: "/api/jobs/updatOpportunityDraft",
+  path: "/api/jobs/updateOpportunityDraft",
   config: {
     description: "Update job opportunity",
     tags: ["api", "jobs"],
@@ -360,16 +360,16 @@ var updateOpportunityDraft = {
       headers: UniversalFunctions.authorizationHeaderObj,
       payload: {
         opportunityId: Joi.string().required(),
-        positionTitle: Joi.string().required(),
-        employmentType: Joi.string().required(),
-        skills: Joi.array().required(),
-        seniority: Joi.string().required(),
-        startDate: Joi.date().required(),
-        endDate: Joi.date().required(),
-        industryField: Joi.string().required(),
-        description: Joi.string().required(),
-        location: Joi.string().required(),
-        latitude: Joi.number().required(),
+        positionTitle: Joi.string().optional().allow(""),
+        employmentType: Joi.string().optional().allow(""),
+        skills: Joi.array().optional().allow(""),
+        seniority: Joi.string().optional().allow(""),
+        startDate: Joi.date().optional().allow(""),
+        endDate: Joi.date().optional().allow(""),
+        industryField: Joi.string().optional().allow(""),
+        description: Joi.string().optional().allow(""),
+        location: Joi.string().optional().allow(""),
+        latitude: Joi.number().optional().allow(""),
         longitude: Joi.number().required()
       },
       failAction: UniversalFunctions.failActionFunction

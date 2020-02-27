@@ -10,5 +10,7 @@ module.exports = {
     ForgetPassword: require('./forgotPasswordRequest'),
     Company: require('./company'),
     UserExtended : require('./userExtended'),
-    OpportunityDraft : require('./opportunityDraft')
+    OpportunityDraft : require('./opportunityDraft'),
+    ForgetPasswordRequestsEmployer: require('./forgotPasswordRequestEmployer')
+
 };

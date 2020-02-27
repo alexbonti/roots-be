@@ -750,7 +750,7 @@ var forgetPassword = function (payloadData, callback) {
     },
     function (cb) {
       console.log("code------>>" + code)
-      Service.ForgetPasswordService.getForgetPasswordRequest({ customerID: dataFound._id }, {
+      Service.ForgetPasswordRequestsEmployerService.getForgetPasswordRequest({ customerID: dataFound._id }, {
         _id: 1,
         isChanged: 1
       }, { lean: 1 }, function (err, data) {
@@ -768,10 +768,10 @@ var forgetPassword = function (payloadData, callback) {
       var data = {
         customerID: dataFound._id,
         requestedAt: Date.now(),
-        employerType: UniversalFunctions.CONFIG.APP_CONSTANTS.DATABASE.USER_ROLES.EMPLOYER
+        userType: UniversalFunctions.CONFIG.APP_CONSTANTS.DATABASE.USER_ROLES.EMPLOYER
       };
       if (forgotDataEntry == null) {
-        Service.ForgetPasswordService.createForgetPasswordRequest(data, function (err, data) {
+        Service.ForgetPasswordRequestsEmployerService.createForgetPasswordRequest(data, function (err, data) {
           if (err) {
             cb(err);
           } else {
@@ -784,7 +784,7 @@ var forgetPassword = function (payloadData, callback) {
           data.isChanged = false;
         }
 
-        Service.ForgetPasswordService.updateForgetPasswordRequest({ _id: forgotDataEntry._id }, data, {}, cb);
+        Service.ForgetPasswordRequestsEmployerService.updateForgetPasswordRequest({ _id: forgotDataEntry._id }, data, {}, cb);
       }
     }
   ],
@@ -838,7 +838,7 @@ var resetPassword = function (payloadData, callbackRoute) {
     },
     function (callback) {
       var query = { customerID: customerId, isChanged: false };
-      Service.ForgetPasswordService.getForgetPasswordRequest(query, { __v: 0 }, {
+      Service.ForgetPasswordRequestsEmployerService.getForgetPasswordRequest(query, { __v: 0 }, {
         limit: 1,
         lean: true
       }, function (err, data) {
@@ -887,7 +887,7 @@ var resetPassword = function (payloadData, callbackRoute) {
         changedAt: UniversalFunctions.getTimestamp()
       };
       console.log("------update forget collection----")
-      Service.ForgetPasswordService.updateForgetPasswordRequest({ customerID: customerId }, dataToUpdate, {
+      Service.ForgetPasswordRequestsEmployerService.updateForgetPasswordRequest({ customerID: customerId }, dataToUpdate, {
         lean: true
       }, callback);
     }
