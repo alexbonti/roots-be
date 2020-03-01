@@ -580,7 +580,13 @@ var workExperienceUserExtended =
             companyName: Joi.string(),
             startDate: Joi.date(),
             endDate: Joi.date(),
-            description: Joi.string()
+            description: Joi.string(),
+            referee: Joi.object(
+              {
+                name: Joi.string().regex(/^[a-zA-Z ]+$/).trim().min(2).required(),
+                phoneNumber: Joi.string().regex(/^[0-9]+$/).min(5)
+              }
+            ).optional().allow('')
           }
         ]
       },
@@ -661,7 +667,13 @@ var editWorkExperience =
         companyName: Joi.string(),
         startDate: Joi.date(),
         endDate: Joi.date(),
-        description: Joi.string()
+        description: Joi.string(),
+        referee: Joi.object(
+          {
+            name: Joi.string().regex(/^[a-zA-Z ]+$/).trim().min(2).required(),
+            phoneNumber: Joi.string().regex(/^[0-9]+$/).min(5)
+          }
+        ).optional().allow('')
       },
       failAction: UniversalFunctions.failActionFunction
     },

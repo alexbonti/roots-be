@@ -1733,6 +1733,7 @@ var editWorkExperience = function (userData, payloadData, callback) {
           "workExperience.$.startDate": payloadData.startDate,
           "workExperience.$.endDate": payloadData.endDate,
           "workExperience.$.description": payloadData.description,
+          "workExperience.$.referee": payloadData.referee,
         }
       }
       Service.UserService.updateUserExtended(criteria, dataToUpdate, {}, function (err, data) {

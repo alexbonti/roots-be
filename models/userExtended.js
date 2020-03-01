@@ -28,7 +28,11 @@ var userExtended = new Schema({
             companyName: { type: String, trim: true },
             startDate: { type: Date },
             endDate: { type: Date },
-            description: { type: String, trim: true }
+            description: { type: String, trim: true },
+            referee: {
+                name: { type: String, trim: true },
+                phoneNumber: { type: Number }
+            }
         }
     ],
     education: [
