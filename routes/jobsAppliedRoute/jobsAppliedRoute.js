@@ -15,7 +15,7 @@ var applyJob = {
       var payloadData = request.payload;
       var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
       return new Promise((resolve, reject) => {
-        Controller.JobsAppliedController.applyJob(userData,payloadData, function (err, data) {
+        Controller.JobsAppliedController.applyJob(userData, payloadData, function (err, data) {
           console.log(">>>>>>>".err, data)
           if (err) {
             reject(UniversalFunctions.sendError(err));
@@ -31,6 +31,8 @@ var applyJob = {
       failAction: UniversalFunctions.failActionFunction,
       payload: {
         jobId: Joi.string().required(),
+        coverLetter: Joi.string().optional().allow(''),
+        criteriaSelection: Joi.string().optional().allow('')
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -127,7 +129,7 @@ var viewJobApplicants =
       var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
       return new Promise((resolve, reject) => {
 
-        Controller.JobsAppliedController.viewJobApplicants(userData,payloadData, function (err, opportunity) {
+        Controller.JobsAppliedController.viewJobApplicants(userData, payloadData, function (err, opportunity) {
           if (!err) {
             return resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, opportunity));
           }
@@ -141,7 +143,7 @@ var viewJobApplicants =
       headers: UniversalFunctions.authorizationHeaderObj,
       failAction: UniversalFunctions.failActionFunction,
       payload: {
-        opportunityId : Joi.string().required()
+        opportunityId: Joi.string().required()
       }
     },
     plugins: {
@@ -178,7 +180,7 @@ var withdrawJob =
     validate: {
       headers: UniversalFunctions.authorizationHeaderObj,
       payload: {
-        opportunityId : Joi.string().required()
+        opportunityId: Joi.string().required()
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -218,8 +220,8 @@ var rejectApplicant =
     validate: {
       headers: UniversalFunctions.authorizationHeaderObj,
       payload: {
-        opportunityId : Joi.string().required(),
-        candidateId : Joi.string().required()
+        opportunityId: Joi.string().required(),
+        candidateId: Joi.string().required()
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -234,11 +236,11 @@ var rejectApplicant =
 
 
 var JobsAppliedRoute = [
-    applyJob,
-    withdrawJob,
-    viewJobsApplied,
-    viewJobApplicants,
-    viewJobsPosted,
-    rejectApplicant
-   ]
- module.exports = JobsAppliedRoute;
+  applyJob,
+  withdrawJob,
+  viewJobsApplied,
+  viewJobApplicants,
+  viewJobsPosted,
+  rejectApplicant
+]
+module.exports = JobsAppliedRoute;
