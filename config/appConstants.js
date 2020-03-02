@@ -239,7 +239,7 @@ var STATUS_MSG = {
     },
     VERIFY_SENT: {
       statusCode: 200,
-      customMessage: "Your new OTP has been sent to your phone",
+      customMessage: "Your new OTP has been sent to your email",
       type: "VERIFY_SENT"
     },
     LOGOUT: {

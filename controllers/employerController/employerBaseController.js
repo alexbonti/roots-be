@@ -166,11 +166,7 @@ var createEmployer = function (payloadData, callback) {
     if (err) {
       return callback(err);
     } else {
-      return callback(null, {
-        accessToken: accessToken,
-        otpCode: customerData.OTPCode,
-        employerDetails: UniversalFunctions.deleteUnnecessaryUserData(customerData)
-      });
+      return callback(null);
     }
   });
 };
@@ -429,7 +425,7 @@ var resendOTP = function (employerData, callback) {
       });
     }
   ], function (err, result) {
-    return callback(err, { OTPCode: uniqueCode });
+    return callback(err, null);
   })
 };
 
@@ -452,7 +448,7 @@ var getOTP = function (payloadData, callback) {
       if (customerData == null || customerData.OTPCode == undefined) {
         return callback(ERROR.OTP_CODE_NOT_FOUND);
       } else {
-        return callback(null, customerData);
+        return callback(null);
       }
     }
   });
@@ -792,7 +788,7 @@ var forgetPassword = function (payloadData, callback) {
       if (error) {
         return callback(error);
       } else {
-        return callback(null, { emailId: payloadData.emailId, OTPCode: code });
+        return callback(null, null);
       }
     });
 }
