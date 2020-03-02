@@ -196,13 +196,7 @@ var createUser = function (payloadData, callback) {
       if (err) {
         return callback(err);
       } else {
-        return callback(null, {
-          accessToken: accessToken,
-          otpCode: customerData.OTPCode,
-          userDetails: UniversalFunctions.deleteUnnecessaryUserData(
-            customerData
-          )
-        });
+        return callback(null);
       }
     }
   );
@@ -635,9 +629,7 @@ var resendOTP = function (userData, callback) {
       }
     ],
     function (err, result) {
-      return callback(err, {
-        OTPCode: uniqueCode
-      });
+      return callback(err, null);
     }
   );
 };
@@ -665,7 +657,7 @@ var getOTP = function (payloadData, callback) {
       if (customerData == null || customerData.OTPCode == undefined) {
         return callback(ERROR.OTP_CODE_NOT_FOUND);
       } else {
-        return callback(null, customerData);
+        return callback(null);
       }
     }
   });
@@ -1063,8 +1055,7 @@ var forgetPassword = function (payloadData, callback) {
         return callback(error);
       } else {
         return callback(null, {
-          emailId: payloadData.emailId,
-          OTPCode: code
+          emailId: payloadData.emailId
         });
       }
     }
@@ -1733,6 +1724,7 @@ var editWorkExperience = function (userData, payloadData, callback) {
           "workExperience.$.startDate": payloadData.startDate,
           "workExperience.$.endDate": payloadData.endDate,
           "workExperience.$.description": payloadData.description,
+          "workExperience.$.referee": payloadData.referee,
         }
       }
       Service.UserService.updateUserExtended(criteria, dataToUpdate, {}, function (err, data) {
@@ -2538,7 +2530,7 @@ var unSaveJob = function (userData, payloadData, callback) {
         );
       },
       function (cb) {
-        console.log("Here",jobsData)
+        console.log("Here", jobsData)
         criteria = {
           _id: extendedCustomerData._id
         };
