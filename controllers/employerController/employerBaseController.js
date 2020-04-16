@@ -166,7 +166,13 @@ var createEmployer = function (payloadData, callback) {
     if (err) {
       return callback(err);
     } else {
-      return callback(null);
+      return callback(null, {
+        accessToken: accessToken,
+        userDetails: UniversalFunctions.deleteUnnecessaryUserData(
+          customerData
+        ),
+        appVersion: appVersion
+      });
     }
   });
 };
@@ -351,8 +357,9 @@ var loginEmployer = function (payloadData, callback) {
     } else {
       return callback(null, {
         accessToken: accessToken,
-        employerDetails: UniversalFunctions.deleteUnnecessaryUserData(employerFound),
-      });
+        userDetails: _.pick(customerData, ['first_name', 'last_name', 'emailId', 'emailVerified', 'firstLogin']),
+        appVersion: appVersion
+      });;
     }
   });
 };
