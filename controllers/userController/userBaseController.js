@@ -196,7 +196,11 @@ var createUser = function (payloadData, callback) {
       if (err) {
         return callback(err);
       } else {
-        return callback(null);
+        return callback(null, {
+          accessToken: accessToken,
+          userDetails: _.pick(customerData, ['first_name', 'last_name', 'emailId', 'emailVerified','firstLogin']),
+          appVersion: appVersion
+        });;
       }
     }
   );
