@@ -59,7 +59,7 @@ const getUserDetailExtended = {
   method: "GET",
   path: "/api/search/user/{_id}",
   config: {
-    description: 'Search Users',
+    description: 'Search User',
     auth: "UserAuth",
     tags: ['api', 'employer', 'search'],
     handler: (request, h) => {

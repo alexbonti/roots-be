@@ -56,7 +56,7 @@ const searchUser = (payloadData, callback) => {
 }
 
 const getUserDetailExtended = (payloadData, callback) => {
-  let result = [];
+  let result = {};
   async.series([(cb) => {
     let criteria = {
       _id: payloadData.employer._id
@@ -69,21 +69,47 @@ const getUserDetailExtended = (payloadData, callback) => {
         else cb()
       }
     });
+  }, (cb) => {
+    let criteria = {
+      emailVerified: true,
+      _id: payloadData.userId
+    };
+    let projection = {
+      password: 0,
+      codeUpdatedAt: 0,
+      accessToken: 0,
+      __v: 0,
+      emailVerified: 0,
+      registrationDate: 0,
+      firstLogin: 0
+    };
+    Service.UserService.getUser(criteria, projection, {}, (err, data) => {
+      if (err) {
+        cb(err);
+      } else {
+        if (data.length == 0) cb(ERROR.NOT_FOUND)
+        else {
+          Object.assign(result, data[0]);
+          cb();
+        }
+      }
+    });
   },
   (cb) => {
     let criteria = {
       userId: payloadData.userId
     };
     let projection = {
-      __v: 0
+      __v: 0,
+      userId: 0
     };
     Service.UserService.getUserExtended(criteria, projection, {}, (err, data) => {
       if (err) {
         cb(err);
       } else {
-        if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+        if (data.length == 0) cb(ERROR.NOT_FOUND)
         else {
-          result = data;
+          Object.assign(result, data[0]);
           cb();
         }
       }
@@ -93,7 +119,7 @@ const getUserDetailExtended = (payloadData, callback) => {
     if (err) {
       return callback(err);
     } else {
-      return callback(null, { users: result });
+      return callback(null, { user: result });
     }
   })
 }
