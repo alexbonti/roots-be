@@ -9,5 +9,6 @@ module.exports = {
   DemoBaseControllerTest: require("./demoController/demoBaseControllerTest"),
   EmployerBaseController: require("./employerController/employerBaseController"),
   JobsAppliedController: require("./jobsAppliedController/jobsAppliedController"),
-  UploadBaseController: require("./uploadController/uploadBaseController")
+  UploadBaseController: require("./uploadController/uploadBaseController"),
+  SearchController: require("./searchController/searchController"),
 };

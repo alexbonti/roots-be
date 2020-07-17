@@ -10,6 +10,7 @@ var JobRoute = require("./opportunityRoute/jobRoute");
 var JobsAppliedRoute = require("./jobsAppliedRoute/jobsAppliedRoute");
 var EmployerBaseRoute = require("./employerRoute/employerBaseRoute");
 var UploadBaseRoute = require("./uploadRoute/uploadBaseRoute");
+var SearchRoute = require("./searchRoute/searchRoute");
 var APIs = [].concat(
   DemoBaseRoute,
   UserBaseRoute,
@@ -17,6 +18,7 @@ var APIs = [].concat(
   DemoBaseRouteTest,
   JobRoute,
   JobsAppliedRoute,
-  UploadBaseRoute
+  UploadBaseRoute,
+  SearchRoute
 );
 module.exports = APIs;
