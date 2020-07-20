@@ -209,16 +209,20 @@ var STATUS_MSG = {
       type: 'INVALID_LAT_LONG'
     },
     DB_ERROR: {
-      statusCode:400,
-      customMessage : 'DB Error : ',
-      type : 'DB_ERROR'
-  },
-  APP_ERROR: {
-      statusCode:400,
-      customMessage : 'Application error',
-      type : 'APP_ERROR'
-  },
-
+      statusCode: 400,
+      customMessage: 'DB Error : ',
+      type: 'DB_ERROR'
+    },
+    APP_ERROR: {
+      statusCode: 400,
+      customMessage: 'Application error',
+      type: 'APP_ERROR'
+    },
+    USERS_WITH_CRITERIA_NOT_FOUND: {
+      statusCode: 400,
+      customMessage: 'Users with criteria not found',
+      type: 'USERS_WITH_CRITERIA_NOT_FOUND'
+    }
 
   },
   SUCCESS: {

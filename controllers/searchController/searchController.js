@@ -7,7 +7,7 @@ var UniversalFunctions = require('../../utils/universalFunctions');
 var async = require('async');
 var ERROR = UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.ERROR;
 
-const searchUser = (payloadData, callback) => {
+const searchAllUser = (payloadData, callback) => {
   let result = [];
   async.series([(cb) => {
     const userData = payloadData.user;
@@ -38,7 +38,65 @@ const searchUser = (payloadData, callback) => {
       if (err) {
         cb(err);
       } else {
+        if (data.length == 0) cb(ERROR.NOT_FOUND)
+        else {
+          result = data;
+          cb();
+        }
+      }
+    });
+  }
+  ], (err, data) => {
+    if (err) {
+      return callback(err);
+    } else {
+      return callback(null, { users: result });
+    }
+  })
+}
+
+
+const searchAllUsersByName = (payloadData, callback) => {
+  let result = [];
+  async.series([(cb) => {
+    let criteria = {
+      _id: payloadData.employer._id,
+      emailVerified: true
+    }
+
+    Service.EmployerService.getEmployer(criteria, {}, {}, (err, data) => {
+      if (err) {
+        cb(err);
+      } else {
         if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+        else cb()
+      }
+    });
+  },
+  (cb) => {
+    let toSearch = payloadData.userName;
+    let criteria = {
+      $or: [
+        { first_name: { $regex: `${toSearch}`, $options: "gi" }, emailVerified: true },
+        { last_name: { $regex: `${toSearch}`, $options: "gi" }, emailVerified: true }
+      ]
+    };
+    console.log(criteria)
+    let projection = {
+      password: 0,
+      codeUpdatedAt: 0,
+      accessToken: 0,
+      __v: 0,
+      emailVerified: 0,
+      registrationDate: 0,
+      OTPCode: 0,
+      firstLogin: 0
+    };
+    Service.UserService.getUser(criteria, projection, {}, (err, data) => {
+      if (err) {
+        cb(err);
+      } else {
+        if (data.length == 0) cb(ERROR.USERS_WITH_CRITERIA_NOT_FOUND)
         else {
           result = data;
           cb();
@@ -59,7 +117,8 @@ const getUserDetailExtended = (payloadData, callback) => {
   let result = {};
   async.series([(cb) => {
     let criteria = {
-      _id: payloadData.employer._id
+      _id: payloadData.employer._id,
+      emailVerified: true
     }
     Service.EmployerService.getEmployer(criteria, {}, {}, (err, data) => {
       if (err) {
@@ -125,6 +184,7 @@ const getUserDetailExtended = (payloadData, callback) => {
 }
 
 module.exports = {
-  searchUser: searchUser,
-  getUserDetailExtended: getUserDetailExtended
+  searchUser: searchAllUser,
+  getUserDetailExtended: getUserDetailExtended,
+  searchAllUsersByName: searchAllUsersByName
 };
