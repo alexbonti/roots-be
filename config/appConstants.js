@@ -222,6 +222,16 @@ var STATUS_MSG = {
       statusCode: 400,
       customMessage: 'Users with criteria not found',
       type: 'USERS_WITH_CRITERIA_NOT_FOUND'
+    },
+    CERTIFICATE_NOT_FOUND: {
+      statusCode: 400,
+      customMessage: 'Certificate not found.',
+      type: 'CERTIFICATE_NOT_FOUND'
+    },
+    PAYLOAD_NOT_FOUND: {
+      statusCode: 400,
+      customMessage: 'Payload not found.',
+      type: 'PAYLOAD_NOT_FOUND'
     }
 
   },

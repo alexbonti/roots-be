@@ -116,7 +116,7 @@ const getAllUserViaName = {
   method: "GET",
   path: "/api/search/users/name/{name}",
   config: {
-    description: 'Search User By Name',
+    description: 'Search Users By Name',
     auth: "UserAuth",
     tags: ['api', 'employer', 'search', 'name'],
     handler: (request, h) => {

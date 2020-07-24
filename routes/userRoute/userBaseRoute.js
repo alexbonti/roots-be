@@ -4,7 +4,6 @@
 var UniversalFunctions = require('../../utils/universalFunctions');
 var Controller = require('../../controllers');
 var Joi = require('joi');
-var Config = require('../../config');
 
 var userRegister = {
   method: 'POST',
@@ -1058,6 +1057,175 @@ var updateProfile = {
     }
   }
 };
+
+/**
+ * @author Sanchit Dang
+ * @description Route for retriving user certificates
+ */
+const getUserCertificates = {
+  method: "GET",
+  path: `/api/user/certificates/getUserCertificates`,
+  config: {
+    description: `Get User Certificates`,
+    auth: 'UserAuth',
+    tags: ['api', 'user', `extended`, `certificates`, `get`],
+    handler: (request, h) => {
+      const userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+        let payloadData = {
+          user: userData
+        };
+        Controller.UserBaseController.getUserCertificates(payloadData, (error, success) => {
+          if (error) return reject(UniversalFunctions.sendError(error));
+          resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, success));
+        });
+      });
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      failAction: UniversalFunctions.failActionFunction,
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+};
+
+/**
+ * @author SanchitDang
+ * @description Route for creating user certificate
+ */
+const addUserCertificate = {
+  method: "POST",
+  path: `/api/user/certificates/addCertificate`,
+  config: {
+    description: `Add User Certificate`,
+    auth: 'UserAuth',
+    tags: ['api', 'user', `extended`, `certificates`, `add`],
+    handler: (request, h) => {
+      const userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+        let payloadData = {
+          user: userData,
+          data: request.payload
+        };
+        Controller.UserBaseController.addUserCertificate(payloadData, (error, success) => {
+          if (error) return reject(UniversalFunctions.sendError(error));
+          resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, success));
+        });
+      });
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      payload: {
+        title: Joi.string().required(),
+        organisation: Joi.string().required(),
+        credentialUrl: Joi.string().uri().required(),
+        credentialId: Joi.string(),
+        issueDate: Joi.date().required(),
+        expiryDate: Joi.date()
+      },
+      failAction: UniversalFunctions.failActionFunction,
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+};
+
+/**
+ * @author SanchitDang
+ * @description Route for soft deleting user certificate
+ */
+const deleteCertificate = {
+  method: "DELETE",
+  path: `/api/user/certificates/delete/{_id}`,
+  config: {
+    description: `Delete User Certificate`,
+    auth: 'UserAuth',
+    tags: ['api', 'user', `extended`, `certificates`, `delete`],
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      params: {
+        _id: Joi.string().required()
+      },
+      failAction: UniversalFunctions.failActionFunction,
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    },
+    handler: (request) => {
+      const userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      const certId = request.params && request.params._id || null;
+      return new Promise((resolve, reject) => {
+        let payloadData = {
+          user: userData,
+          certId: certId
+        };
+        Controller.UserBaseController.deleteUserCertificate(payloadData, (error, success) => {
+          if (error) return reject(UniversalFunctions.sendError(error));
+          resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, success));
+        });
+      });
+    }
+  },
+};
+
+/**
+ * @author SanchitDang
+ * @description Route for editing user certificate
+ */
+const editCertificate = {
+  method: "PUT",
+  path: `/api/user/certificates/edit/{_id}`,
+  config: {
+    description: `Delete User Certificate`,
+    auth: 'UserAuth',
+    tags: ['api', 'user', `extended`, `certificates`, `edit`],
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      payload: {
+        title: Joi.string().optional().allow(""),
+        organisation: Joi.string().optional().allow(""),
+        credentialUrl: Joi.string().uri().optional().allow(""),
+        credentialId: Joi.string().optional().allow(""),
+        issueDate: Joi.date().optional().allow(""),
+        expiryDate: Joi.date().optional().allow("")
+      },
+      params: {
+        _id: Joi.string().required()
+      },
+      failAction: UniversalFunctions.failActionFunction,
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    },
+    handler: (request) => {
+      const userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      const certId = request.params && request.params._id || null;
+      return new Promise((resolve, reject) => {
+        let payloadData = {
+          user: userData,
+          certId: certId,
+          data: request.payload
+        };
+        Controller.UserBaseController.editUserCertificate(payloadData, (error, success) => {
+          if (error) return reject(UniversalFunctions.sendError(error));
+          resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, success));
+        });
+      });
+    }
+  },
+};
+
 var UserBaseRoute =
   [
     userRegister,
@@ -1087,6 +1255,10 @@ var UserBaseRoute =
     removeWorkExperience,
     editWorkExperience,
     removeEducation,
-    editEducation
+    editEducation,
+    getUserCertificates,
+    addUserCertificate,
+    deleteCertificate,
+    editCertificate
   ]
 module.exports = UserBaseRoute;

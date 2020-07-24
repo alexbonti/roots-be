@@ -198,7 +198,7 @@ var createUser = function (payloadData, callback) {
       } else {
         return callback(null, {
           accessToken: accessToken,
-          userDetails: _.pick(customerData, ['first_name', 'last_name', 'emailId', 'emailVerified','firstLogin']),
+          userDetails: _.pick(customerData, ['first_name', 'last_name', 'emailId', 'emailVerified', 'firstLogin']),
           appVersion: appVersion
         });;
       }
@@ -2258,7 +2258,10 @@ var getUserExtended = function (userData, callback) {
               if (data == null || data.length == 0) {
                 cb(ERROR.DEFAULT);
               } else {
-                extendedCustomerData = (data && data[0]) || null;
+                if (data !== undefined && data.length > 0) {
+                  extendedCustomerData = data[0];
+                  extendedCustomerData.certificates = data[0].certificates.filter(cert => cert.isActive == true);
+                }
                 cb();
               }
             }
@@ -2734,6 +2737,323 @@ const updateProfile = function (userData, payloadData, callback) {
   );
 };
 
+/**
+ * @author Sanchit Dang
+ * @description Controller for retriving user certificates
+ * @param {Object} payload Payload for the controller
+ * @param {String} payload._id user's id
+ * @param {Function} callback Callback function
+ */
+const getUserCertificates = (payload, callback) => {
+  let userId = payload.user._id
+  async.series([
+    (cb) => {
+      let criteria = {
+        _id: userId,
+        emailVerified: true
+      }
+      Service.UserService.getUser(criteria, {}, {}, (
+        err,
+        data
+      ) => {
+        if (err) return cb(err);
+        if (data.length == 0) return cb(ERROR.INCORRECT_ACCESSTOKEN);
+        cb();
+      });
+    },
+    (cb) => {
+      let criteria = {
+        userId: userId,
+      };
+      let projection = {
+        certificates: true
+      };
+      Service.UserService.getUserExtended(criteria, projection, {}, (err, data) => {
+        console.log(data);
+        if (err) return cb(err);
+        if (data.length === 0)
+          return cb(null, []);
+        if (data[0].certificates === undefined) return cb(null, [])
+        if (data[0].certificates.length === 0) return cb(null, []);
+        let certificates = data[0].certificates.filter(cert => cert.isActive == true);
+        return cb(null, certificates)
+      });
+    }
+  ], (err, data) => {
+    if (err)
+      return callback(err);
+    return callback(null, data[1]);
+  });
+}
+
+/**
+ * @author Sanchit Dang
+ * @description Controller for adding user certificate
+ * @param {Object} payload Payload for the controller
+ * @param {Object} payload.user user data
+ * @param {String} payload.user._id user's id
+ * @param {Object} payload.data certificate data
+ * @param {String} payload.data.title certificate title
+ * @param {String} payload.data.organisation certificate title
+ * @param {String} payload.data.credentialId certificate title
+ * @param {URL} payload.data.credentialUrl certificate title
+ * @param {Date} payload.data.issueDate certificate title
+ * @param {Date} payload.data.expiryDate certificate title
+ * @param {Function} callback Callback function
+ */
+const addUserCertificate = (payload, callback) => {
+  let userId = payload.user._id
+  async.series([
+    (cb) => {
+      let criteria = {
+        _id: userId,
+        emailVerified: true
+      }
+      Service.UserService.getUser(criteria, {}, {}, (
+        err,
+        data
+      ) => {
+        if (err) return cb(err);
+        if (data.length == 0) return cb(ERROR.INCORRECT_ACCESSTOKEN);
+        cb();
+      });
+    },
+    (cb) => {
+      let criteria = {
+        userId: userId,
+      }
+      Service.UserService.getUserExtended(criteria, {}, {}, (err, data) => {
+        if (err) return cb(err);
+        if (data.length === 0)
+          return cb(null, ERROR.NOT_FOUND);
+        cb()
+      });
+    },
+    (cb) => {
+      if (payload.data === undefined) return cb(ERROR.NOT_FOUND)
+      let criteria = {
+        userId: userId,
+      }
+      let dataToSet = {
+        $push: {
+          certificates: {
+            title: payload.data.title,
+            organisation: payload.data.organisation,
+            credentialId: payload.data.credentialId,
+            credentialUrl: payload.data.credentialUrl,
+            issueDate: payload.data.issueDate,
+            expiryDate: payload.data.expiryDate
+          }
+        }
+      }
+      Service.UserService.updateUserExtended(criteria, dataToSet, {}, (err, data) => {
+        if (err) return cb(err);
+        if (data.length === 0)
+          return cb(null, ERROR.NOT_FOUND);
+        cb()
+      });
+    }
+  ], (err, data) => {
+    if (err)
+      return callback(err);
+    return callback(null);
+  });
+}
+
+/**
+ * @author Sanchit Dang
+ * @description Controller for soft deleting user certificate
+ * @param {Object} payload Payload for the controller
+ * @param {Object} payload.user user data
+ * @param {String} payload.user._id user's id
+ * @param {String} payload.certId certificate ID
+ * @param {Function} callback Callback function
+ */
+const deleteUserCertificate = (payload, callback) => {
+  let userId = payload.user._id;
+  let certId = payload.certId;
+  async.series([
+    (cb) => {
+      let criteria = {
+        _id: userId,
+        emailVerified: true
+      };
+      Service.UserService.getUser(criteria, {}, {}, (
+        err,
+        data
+      ) => {
+        if (err) return cb(err);
+        if (data.length == 0) return cb(ERROR.INCORRECT_ACCESSTOKEN);
+        cb();
+      });
+    },
+    (cb) => {
+      let criteria = {
+        userId: userId,
+        certificates: {
+          $elemMatch: {
+            _id: certId,
+            isActive: true
+          }
+        }
+      };
+      Service.UserService.getUserExtended(criteria, {}, {}, (err, data) => {
+        console.log(payload.certId, data)
+        if (err) return cb(err);
+        if (data.length === 0)
+          return cb(null, ERROR.CERTIFICATE_NOT_FOUND);
+        cb()
+      });
+    },
+    (cb) => {
+      let criteria = {
+        userId: userId,
+        certificates: {
+          $elemMatch: {
+            _id: certId,
+            isActive: true
+          }
+        }
+      }
+      let dataToSet = {
+        $set: {
+          "certificates.$[f1].isActive": false
+        }
+      }
+      let options = {
+        "arrayFilters": [
+          { "f1._id": certId }
+        ]
+      }
+      Service.UserService.updateUserExtended(criteria, dataToSet, options, (err, data) => {
+        if (err) return cb(err);
+        cb()
+      });
+    }
+  ], (err, data) => {
+    if (err)
+      return callback(err);
+    return callback(null);
+  });
+}
+
+/**
+ * @author Sanchit Dang
+ * @description Controller for editing user certificate
+ * @param {Object} payload Payload for the controller
+ * @param {Object} payload.user user data
+ * @param {String} payload.user._id user's id
+ * @param {String} payload.certId certificate ID
+ * @param {Object} payload.data certificate data
+ * @param {String} payload.data.title certificate title
+ * @param {String} payload.data.organisation certificate title
+ * @param {String} payload.data.credentialId certificate title
+ * @param {URL} payload.data.credentialUrl certificate title
+ * @param {Date} payload.data.issueDate certificate title
+ * @param {Date} payload.data.expiryDate certificate title
+ * @param {Function} callback Callback function
+ */
+const editUserCertificate = (payload, callback) => {
+  let userId = payload.user._id;
+  let certId = payload.certId;
+  let certificateData = payload.data;
+  async.series([
+    (cb) => {
+      let criteria = {
+        _id: userId,
+        emailVerified: true
+      };
+      Service.UserService.getUser(criteria, {}, {}, (
+        err,
+        data
+      ) => {
+        if (err) return cb(err);
+        if (data.length == 0) return cb(ERROR.INCORRECT_ACCESSTOKEN);
+        cb();
+      });
+    },
+    (cb) => {
+      let criteria = {
+        userId: userId,
+        certificates: {
+          $elemMatch: {
+            _id: certId,
+            isActive: true
+          }
+        }
+      };
+      Service.UserService.getUserExtended(criteria, {}, {}, (err, data) => {
+        console.log(payload.certId, data)
+        if (err) return cb(err);
+        if (data.length === 0)
+          return cb(null, ERROR.CERTIFICATE_NOT_FOUND);
+        if (data.certificates === undefined)
+          return cb(null, ERROR.CERTIFICATE_NOT_FOUND);
+        if (data.certificates.length === 0)
+          return cb(null, ERROR.CERTIFICATE_NOT_FOUND);
+        if (data.certificates === 0)
+          cb()
+      });
+    },
+    (cb) => {
+      let criteria = {
+        userId: userId,
+        certificates: {
+          $elemMatch: {
+            _id: certId,
+            isActive: true
+          }
+        }
+      }
+      let dataToSet = {
+
+      };
+      if (certificateData.hasOwnProperty("title")) {
+        if (certificateData.title !== undefined && certificateData.title !== null && certificateData.title !== "")
+          dataToSet["certificates.$[f1].title"] = certificateData.title;
+      }
+      if (certificateData.hasOwnProperty("organisation")) {
+        if (certificateData.organisation !== undefined && certificateData.organisation !== null && certificateData.organisation !== "")
+          dataToSet["certificates.$[f1].organisation"] = certificateData.organisation;
+      }
+      if (certificateData.hasOwnProperty("credentialUrl")) {
+        if (certificateData.credentialUrl !== undefined && certificateData.credentialUrl !== null && certificateData.credentialUrl !== "")
+          dataToSet["certificates.$[f1].credentialUrl"] = certificateData.credentialUrl;
+      }
+      if (certificateData.hasOwnProperty("credentialId")) {
+        if (certificateData.credentialId !== undefined && certificateData.credentialId !== null && certificateData.credentialId !== "")
+          dataToSet["certificates.$[f1].credentialId"] = certificateData.credentialId;
+      }
+      if (certificateData.hasOwnProperty("issueDate")) {
+        if (certificateData.issueDate !== undefined && certificateData.issueDate !== null && certificateData.issueDate !== "")
+          dataToSet["certificates.$[f1].issueDate"] = certificateData.issueDate;
+      }
+      if (certificateData.hasOwnProperty("expiryDate")) {
+        if (certificateData.expiryDate !== undefined && certificateData.issueDate !== "")
+          dataToSet["certificates.$[f1].expiryDate"] = certificateData.expiryDate;
+      }
+      if (Object.keys(dataToSet).length > 0) {
+        dataToSet["certificates.$[f1].updatedAt"] = Date.now();
+        let options = {
+          "arrayFilters": [
+            { "f1._id": certId }
+          ]
+        }
+        Service.UserService.updateUserExtended(criteria, { $set: { ...dataToSet } }, options, (err, data) => {
+          if (err) return cb(err);
+          cb()
+        });
+      }
+      else cb(ERROR.PAYLOAD_NOT_FOUND)
+    }
+  ], (err) => {
+    if (err)
+      return callback(err);
+    return callback();
+  });
+}
+
+
 module.exports = {
   createUser: createUser,
   verifyOTP: verifyOTP,
@@ -2762,5 +3082,9 @@ module.exports = {
   removeWorkExperience: removeWorkExperience,
   editWorkExperience: editWorkExperience,
   removeEducation: removeEducation,
-  editEducation: editEducation
+  editEducation: editEducation,
+  getUserCertificates: getUserCertificates,
+  addUserCertificate: addUserCertificate,
+  deleteUserCertificate: deleteUserCertificate,
+  editUserCertificate: editUserCertificate
 };

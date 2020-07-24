@@ -43,6 +43,19 @@ var userExtended = new Schema({
             startDate: { type: Date },
             endDate: { type: Date },
         }
+    ],
+    certificates: [
+        {
+            title: { type: String, trim: true },
+            organisation: { type: String, trim: true },
+            credentialId: { type: String, trim: true },
+            credentialUrl: { type: String, trim: true },
+            issueDate: { type: Date },
+            expiryDate: { type: Date },
+            isActive: { type: Boolean, default: true },
+            createdAt: { type: Date, default: Date.now() },
+            updatedAt: { type: Date, default: Date.now() }
+        }
     ]
 });
 
