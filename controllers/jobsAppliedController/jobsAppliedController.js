@@ -350,11 +350,13 @@ var viewJobApplicants = function (userData, payloadData, callback) {
                     embeddedCB(err)
                   } else {
                     if (data.length != 0) {
-                      console.log(">>>>>>>>")
-                      opportunityData[key].candidateId.UserExtendedProfile = data[0];
+                      opportunityData[key].candidateId.avatar = data[0].avatar;
+                      opportunityData[key].candidateId.skills = data[0].skills;
+
                     }
                     else {
-                      opportunityData[key].candidateId.UserExtendedProfile = null;
+                      opportunityData[key].candidateId.avatar = null;
+                      opportunityData[key].candidateId.skills = null;
                     }
                     embeddedCB()
                   }

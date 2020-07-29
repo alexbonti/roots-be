@@ -168,7 +168,12 @@ const getUserDetailExtended = (payloadData, callback) => {
       } else {
         if (data.length == 0) cb(ERROR.NOT_FOUND)
         else {
-          Object.assign(result, data[0]);
+          let userData = data[0];
+          if (userData.hasOwnProperty("certificates")) {
+            if (userData.certificates.length > 0)
+              userData.certificates = userData.certificates.filter(certificate => certificate.isActive == true);
+          }
+          Object.assign(result, userData);
           cb();
         }
       }
