@@ -75,13 +75,33 @@ const searchAllUsersByName = (payloadData, callback) => {
   },
   (cb) => {
     let toSearch = payloadData.userName;
-    let criteria = {
-      $or: [
-        { first_name: { $regex: `${toSearch}`, $options: "gi" }, emailVerified: true },
-        { last_name: { $regex: `${toSearch}`, $options: "gi" }, emailVerified: true }
-      ]
-    };
-    console.log(criteria)
+    let splitedName = toSearch.split(" ");
+    let criteria = {};
+    console.log(splitedName[0],splitedName[1], toSearch);
+    if (splitedName.length > 1)
+      criteria = {
+        $or: [
+          { first_name: { $regex: `${toSearch}`, $options: "gi" }, emailVerified: true },
+          { last_name: { $regex: `${toSearch}`, $options: "gi" }, emailVerified: true },
+          {
+            first_name: { $regex: `${splitedName[1]}`, $options: "gi" },
+            last_name: { $regex: `${splitedName[0]}`, $options: "gi" },
+            emailVerified: true
+          },
+          {
+            first_name: { $regex: `${splitedName[0]}`, $options: "gi" },
+            last_name: { $regex: `${splitedName[1]}`, $options: "gi" },
+            emailVerified: true
+          }
+        ]
+      };
+    else
+      criteria = {
+        $or: [
+          { first_name: { $regex: `${toSearch}`, $options: "gi" }, emailVerified: true },
+          { last_name: { $regex: `${toSearch}`, $options: "gi" }, emailVerified: true }
+        ]
+      };
     let projection = {
       password: 0,
       codeUpdatedAt: 0,
