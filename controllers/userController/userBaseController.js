@@ -2015,17 +2015,10 @@ var editEducation = function (userData, payloadData, callback) {
 };
 
 var preferrencesUserExtended = function (userData, payloadData, callback) {
-  console.log('payload:', payloadData);
-  var accessToken = null;
-  var uniqueCode = null;
-  var extendedCustomerData = null;
-  var jobData;
-  var appVersion = null;
-  var customerData;
-  var userdata = {}
-  var userFound = null;
-  async.series([
 
+  var extendedCustomerData = null;
+  var customerData;
+  async.series([
     function (cb) {
       var query = {
         _id: userData._id
@@ -2050,6 +2043,13 @@ var preferrencesUserExtended = function (userData, payloadData, callback) {
           }
         }
       });
+    }, (cb) => {
+      Service.UserService.updateUser({
+        _id: userData._id
+      }, { userProfileSetupComplete: true }, {}, (err, data) => {
+        if (err) return cb(err);
+        cb();
+      })
     },
     function (cb) {
       var projection = {
@@ -2093,7 +2093,8 @@ var preferrencesUserExtended = function (userData, payloadData, callback) {
           skills: payloadData.skills,
           preferredIndustry: payloadData.preferredIndustry,
           resumeURL: payloadData.resumeURL,
-          coverLetter: payloadData.coverLetter
+          coverLetter: payloadData.coverLetter,
+
         }
       }
       Service.UserService.updateUserExtended(criteria, dataToUpdate, {}, function (err, data) {
@@ -2771,9 +2772,8 @@ const getUserCertificates = (payload, callback) => {
       Service.UserService.getUserExtended(criteria, projection, {}, (err, data) => {
         console.log(data);
         if (err) return cb(err);
-        if (data.length === 0)
-          return cb(null, []);
-        if (data[0].certificates === undefined) return cb(null, [])
+        if (data.length === 0) return cb(null, []);
+        if (data[0].hasOwnProperty("certificates")) return cb(null, [])
         if (data[0].certificates.length === 0) return cb(null, []);
         let certificates = data[0].certificates.filter(cert => cert.isActive == true);
         return cb(null, certificates)

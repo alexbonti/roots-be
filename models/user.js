@@ -16,6 +16,7 @@ var user = new Schema({
   OTPCode: { type: String, trim: true },
   emailVerified: { type: Boolean, default: false },
   registrationDate: { type: Date, default: Date.now },
+  userProfileSetupComplete: { type: Boolean, default: false },
   codeUpdatedAt: { type: Date, default: Date.now, required: true },
   firstLogin: { type: Boolean, default: true }
 });
