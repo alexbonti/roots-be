@@ -253,9 +253,6 @@ var loginEmployer = function (payloadData, callback) {
       var criteria = {
         emailId: payloadData.emailId
       };
-      //var projection = {
-      //    paymentCard: {$elemMatch: {isDefault: true}}
-      //};
       var option = {
         lean: true
       };
@@ -270,16 +267,13 @@ var loginEmployer = function (payloadData, callback) {
 
     },
     function (cb) {
-      //validations
       if (!employerFound) {
         cb(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.ERROR.USER_NOT_FOUND);
       } else {
         if (employerFound && employerFound.password != UniversalFunctions.CryptData(payloadData.password)) {
           cb(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.ERROR.INCORRECT_PASSWORD);
         } else if (employerFound.emailVerified == false) {
-
           cb(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.ERROR.NOT_REGISTERED);
-
         }
         else {
           successLogin = true;
@@ -304,7 +298,6 @@ var loginEmployer = function (payloadData, callback) {
     function (cb) {
       var criteria = {
         emailId: payloadData.emailId
-
       };
       var projection = {
         _id: 1,
@@ -355,11 +348,17 @@ var loginEmployer = function (payloadData, callback) {
     if (err) {
       return callback(err);
     } else {
+      if (employerFound)
+        return callback(null, {
+          accessToken: accessToken,
+          employerDetails: _.pick(employerFound, ['first_name', 'last_name', 'emailId', 'emailVerified', 'firstLogin']),
+          appVersion: appVersion
+        });;
       return callback(null, {
         accessToken: accessToken,
-        userDetails: _.pick(customerData, ['first_name', 'last_name', 'emailId', 'emailVerified', 'firstLogin']),
+        employerDetails: [],
         appVersion: appVersion
-      });;
+      })
     }
   });
 };
