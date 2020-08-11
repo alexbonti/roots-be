@@ -1,7 +1,7 @@
 {
-  "name": "boilerplate-deakin",
+  "name": "garage-jobsearch-be",
   "main": "server.js",
-  "description": "An introduction to developing Node.js apps on the IBM Cloud platform",
+  "description": "Backend for Garage JobSearch",
   "version": "0.1.1",
   "private": false,
   "engines": {
