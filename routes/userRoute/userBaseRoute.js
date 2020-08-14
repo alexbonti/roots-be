@@ -582,8 +582,8 @@ var workExperienceUserExtended =
             description: Joi.string(),
             referee: Joi.object(
               {
-                name: Joi.string().regex(/^[a-zA-Z ]+$/).trim().min(2).required(),
-                phoneNumber: Joi.string().regex(/^[0-9]+$/).min(5)
+                name: Joi.string().regex(/^[a-zA-Z ]+$/).trim().min(2).optional().allow(''),
+                phoneNumber: Joi.string().regex(/^[0-9]+$/).min(5).optional().allow('')
               }
             ).optional().allow('')
           }
@@ -669,8 +669,8 @@ var editWorkExperience =
         description: Joi.string(),
         referee: Joi.object(
           {
-            name: Joi.string().regex(/^[a-zA-Z ]+$/).trim().min(2).required(),
-            phoneNumber: Joi.string().regex(/^[0-9]+$/).min(5)
+            name: Joi.string().regex(/^[a-zA-Z ]+$/).trim().min(2).optional().allow(''),
+            phoneNumber: Joi.string().regex(/^[0-9]+$/).min(5).optional().allow('')
           }
         ).optional().allow('')
       },
