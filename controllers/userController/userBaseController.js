@@ -2014,6 +2014,51 @@ var editEducation = function (userData, payloadData, callback) {
   });
 };
 
+/**
+ * 
+ * @param {Object} payload Payload for the controller
+ * @param {Object} payload.userData UserData of the user
+ * @param {Function} callback 
+ */
+const skipUserOnboarding = (payload, callback) => {
+  const userId = payload.userData._id;
+  async.series([(cb) => {
+    const projection = {
+      __v: 0,
+      password: 0,
+      accessToken: 0,
+      codeUpdatedAt: 0
+    };
+    Service.UserService.getUser({ _id: userId }, projection, {}, (err, data) => {
+      if (err) {
+        cb(err);
+      } else {
+        if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+        else {
+          customerData = data && data[0] || null;
+          cb()
+        }
+      }
+    });
+  },
+  (cb) => {
+    Service.UserService.updateUser({
+      _id: userId
+    }, { userProfileSetupComplete: true }, {}, (err, data) => {
+      if (err) return cb(err);
+      cb();
+    })
+  }
+  ], (err) => {
+    if (err) {
+      return callback(err);
+    } else {
+      return callback(null, {});
+    }
+  })
+
+};
+
 var preferrencesUserExtended = function (userData, payloadData, callback) {
 
   var extendedCustomerData = null;
@@ -3086,5 +3131,6 @@ module.exports = {
   getUserCertificates: getUserCertificates,
   addUserCertificate: addUserCertificate,
   deleteUserCertificate: deleteUserCertificate,
-  editUserCertificate: editUserCertificate
+  editUserCertificate: editUserCertificate,
+  skipUserOnboarding: skipUserOnboarding
 };

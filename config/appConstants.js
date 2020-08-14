@@ -270,6 +270,11 @@ var STATUS_MSG = {
       statusCode: 200,
       customMessage: "No applications for this job yet",
       type: "NO_JOB_APPLICATIONS"
+    },
+    USER_ONBOARDING_SKIPPED: {
+      statusCode: 200,
+      customMessage: "Successfuly Skipped User Onboarding",
+      type: "USER_ONBOARDING_SKIPPED"
     }
   }
 };

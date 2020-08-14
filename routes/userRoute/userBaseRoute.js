@@ -739,8 +739,26 @@ const skipUserOnBoarding = {
     auth: 'UserAuth',
     handler: (request, reply) => {
       var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
-
-
+      return new Promise((resolve, reject) => {
+        console.log(userData)
+        Controller.UserBaseController.skipUserOnboarding({
+          userData
+        }, (err, data) => {
+          if (!err)
+            return resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.USER_ONBOARDING_SKIPPED, data));
+          else
+            return reject(UniversalFunctions.sendError(err));
+        });
+      });
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      failAction: UniversalFunctions.failActionFunction
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
     }
   }
 
@@ -1274,6 +1292,7 @@ var UserBaseRoute =
     getUserCertificates,
     addUserCertificate,
     deleteCertificate,
-    editCertificate
+    editCertificate,
+    skipUserOnBoarding
   ]
 module.exports = UserBaseRoute;
