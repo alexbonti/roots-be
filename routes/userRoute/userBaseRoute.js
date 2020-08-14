@@ -578,8 +578,8 @@ var workExperienceUserExtended =
             positionTitle: Joi.string(),
             companyName: Joi.string(),
             startDate: Joi.date(),
-            endDate: Joi.date(),
-            description: Joi.string(),
+            endDate: Joi.date().optional().allow(''),
+            description: Joi.string().optional().allow(''),
             referee: Joi.object(
               {
                 name: Joi.string().regex(/^[a-zA-Z ]+$/).trim().min(2).optional().allow(''),
@@ -665,8 +665,8 @@ var editWorkExperience =
         positionTitle: Joi.string(),
         companyName: Joi.string(),
         startDate: Joi.date(),
-        endDate: Joi.date(),
-        description: Joi.string(),
+        endDate: Joi.date().optional().allow(''),
+        description: Joi.string().optional().allow(''),
         referee: Joi.object(
           {
             name: Joi.string().regex(/^[a-zA-Z ]+$/).trim().min(2).optional().allow(''),
@@ -730,6 +730,22 @@ var educationUserExtended =
   }
 }
 
+const skipUserOnBoarding = {
+  method: "PUT",
+  path: '/api/user/skipUserOnboarding',
+  config: {
+    description: 'Create/Update user education profile',
+    tags: ['api', 'jobs'],
+    auth: 'UserAuth',
+    handler: (request, reply) => {
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+
+
+    }
+  }
+
+}
+
 var removeEducation =
 {
   method: 'PUT',
@@ -741,7 +757,6 @@ var removeEducation =
     handler: function (request, reply) {
       var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
       return new Promise((resolve, reject) => {
-
         Controller.UserBaseController.removeEducation(userData, request.payload, function (err, opportunity) {
           if (!err) {
             return resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, opportunity));
