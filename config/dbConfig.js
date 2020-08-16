@@ -6,7 +6,7 @@
 
 var mongo = {
   //URI: process.env.MONGO_URI || 'mongodb://localhost/refugees',
-  URI: process.env.MONGO_URI || "mongodb://"+process.env.MONGO_USER+":"+process.env.MONGO_PASS+"@a064ca00-3e8f-4940-a0ca-18ca35c6fff9-0.22868e325a8b40b6840ed9895f3bb023.databases.appdomain.cloud:31051,a064ca00-3e8f-4940-a0ca-18ca35c6fff9-1.22868e325a8b40b6840ed9895f3bb023.databases.appdomain.cloud:31051/ibmclouddb?authSource=admin&replicaSet=replset",
+  URI: process.env.MONGO_URI || "mongodb://"+process.env.MONGO_USER+":"+process.env.MONGO_PASS+"@964a5691-9470-487d-ad40-d27a6d1f7a24-0.22868e325a8b40b6840ed9895f3bb023.databases.appdomain.cloud:30947,964a5691-9470-487d-ad40-d27a6d1f7a24-1.22868e325a8b40b6840ed9895f3bb023.databases.appdomain.cloud:30947/roots-be-prod?authSource=admin&replicaSet=replset",
   port: 27017
 };
 
