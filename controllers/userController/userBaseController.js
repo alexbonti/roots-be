@@ -2305,7 +2305,7 @@ var getUserExtended = function (userData, callback) {
                 cb(ERROR.DEFAULT);
               } else {
                 if (data !== undefined && data.length > 0) {
-                  userData = data && data[0];
+                  extendedCustomerData = data && data[0];
                   if(userData.hasOwnProperty("certificates") && userData.certificates.length > 0){
                     extendedCustomerData.certificates = data[0].certificates.filter(cert => cert.isActive == true)
                   }
