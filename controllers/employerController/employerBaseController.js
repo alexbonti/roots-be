@@ -646,13 +646,13 @@ var changePassword = function (employerData, payloadData, callbackRoute) {
           if (customerData == null) {
             callback(ERROR.NOT_FOUND);
           } else {
-            if (data[0].password == oldPassword && data[0].password != newPassword) {
+            if (customerData.password == oldPassword && customerData.password != newPassword) {
               callback(null);
             }
-            else if (data[0].password != oldPassword) {
+            else if (customerData.password != oldPassword) {
               callback(ERROR.WRONG_PASSWORD)
             }
-            else if (data[0].password == newPassword) {
+            else if (customerData.password == newPassword) {
               callback(ERROR.NOT_UPDATE)
             }
           }
@@ -874,12 +874,7 @@ var resetPassword = function (payloadData, callbackRoute) {
         if (error) {
           callback(error);
         } else {
-          if (result.n === 0) {
-            callback(ERROR.USER_NOT_FOUND);
-          } else {
-            console.log("-------update pwd-----")
-            callback();
-          }
+          callback()
         }
       });
     },
@@ -889,7 +884,7 @@ var resetPassword = function (payloadData, callbackRoute) {
         changedAt: UniversalFunctions.getTimestamp()
       };
       console.log("------update forget collection----")
-      Service.ForgetPasswordRequestsEmployerService.updateForgetPasswordRequest({ customerID: customerId }, dataToUpdate, {
+      Service.ForgetPasswordRequestsEmployerService.updateForgetPasswordRequest({ _id: foundData._id }, dataToUpdate, {
         lean: true
       }, callback);
     }

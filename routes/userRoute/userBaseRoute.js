@@ -344,8 +344,8 @@ var changePassword =
     validate: {
       headers: UniversalFunctions.authorizationHeaderObj,
       payload: {
-        oldPassword: Joi.string().required().min(4),
-        newPassword: Joi.string().required().min(4)
+        oldPassword: Joi.string().required().min(5),
+        newPassword: Joi.string().required().min(5)
       },
       failAction: UniversalFunctions.failActionFunction
     },
@@ -409,7 +409,7 @@ var resetPassword = {
     },
     validate: {
       payload: {
-        password: Joi.string().min(6).required().trim(),
+        password: Joi.string().min(5).required().trim(),
         emailId: Joi.string().required(),
         OTPCode: Joi.string().required()
       },

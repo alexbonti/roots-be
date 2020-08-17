@@ -7,7 +7,7 @@ var Schema = mongoose.Schema;
 var CONFIG = require('../config');
 
 var forgetPasswordRequests = new Schema({
-  customerID: { type: Schema.ObjectId, ref: 'users' },
+  customerID: { type: Schema.ObjectId, ref: 'user' },
   userType: {
     type: String,
     enum: [
