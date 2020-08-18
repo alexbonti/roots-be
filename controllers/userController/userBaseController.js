@@ -657,7 +657,6 @@ var getOTP = function (payloadData, callback) {
       return callback(err);
     } else {
       var customerData = (data && data[0]) || null;
-      console.log("customerData-------->>>" + JSON.stringify(customerData));
       if (customerData == null || customerData.OTPCode == undefined) {
         return callback(ERROR.OTP_CODE_NOT_FOUND);
       } else {
@@ -865,9 +864,6 @@ var changePassword = function (userData, payloadData, callbackRoute) {
             callback(err);
           } else {
             var customerData = (data && data[0]) || null;
-            console.log(
-              "customerData-------->>>" + JSON.stringify(customerData)
-            );
             if (customerData == null) {
               callback(ERROR.NOT_FOUND);
             } else {
@@ -1208,7 +1204,6 @@ var resetPassword = function (payloadData, callbackRoute) {
 };
 
 var volunteerUserExtended = function (userData, payloadData, callback) {
-  console.log("payload:", payloadData);
   var accessToken = null;
   var uniqueCode = null;
   var extendedCustomerData = null;
@@ -1270,7 +1265,6 @@ var volunteerUserExtended = function (userData, payloadData, callback) {
                   err,
                   extendedCustomer
                 ) {
-                  console.log("hello", err, extendedCustomer);
                   if (err) {
                     cb(err);
                   } else {
@@ -1280,7 +1274,6 @@ var volunteerUserExtended = function (userData, payloadData, callback) {
                 });
               } else {
                 extendedCustomerData = (data && data[0]) || null;
-                console.log("hello", err, extendedCustomerData);
                 cb();
               }
             }
@@ -1480,7 +1473,6 @@ var editVolunteerExperience = function (userData, payloadData, callback) {
 };
 
 var workExperienceUserExtended = function (userData, payloadData, callback) {
-  console.log("payload:", payloadData);
   var accessToken = null;
   var uniqueCode = null;
   var extendedCustomerData = null;
@@ -1539,10 +1531,7 @@ var workExperienceUserExtended = function (userData, payloadData, callback) {
                   userId: customerData._id
                 };
                 Service.UserService.createUserExtended(dataToSet, function (
-                  err,
-                  extendedCustomer
-                ) {
-                  console.log("hello", err, extendedCustomer);
+                  err, extendedCustomer) {
                   if (err) {
                     cb(err);
                   } else {
@@ -2033,12 +2022,20 @@ const skipUserOnboarding = (payload, callback) => {
       if (err) {
         cb(err);
       } else {
-        if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+        if (data.length == 0) {
+          cb(ERROR.USER_NOT_FOUND)
+        }
         else {
           customerData = data && data[0] || null;
           cb()
         }
       }
+    });
+  },
+  (cb) => {
+    Service.UserService.createUserExtended({ userId: userId }, (err, data) => {
+      if (err) cb(err);
+      else cb();
     });
   },
   (cb) => {
@@ -2271,10 +2268,7 @@ var getUserExtended = function (userData, callback) {
         var options = {
           lean: true
         };
-        Service.UserService.getUser(query, projection, options, function (
-          err,
-          data
-        ) {
+        Service.UserService.getUser(query, projection, options, function (err, data) {
           if (err) {
             cb(err);
           } else {
@@ -2290,33 +2284,40 @@ var getUserExtended = function (userData, callback) {
         var projection = {
           __v: 0
         };
-        Service.UserService.getUserExtended(
-          {
-            userId: customerData._id
-          },
-          projection,
-          {
-            lean: true
-          },
-          function (err, data) {
-            if (err) cb(err);
-            else {
-              if (data == null || data.length == 0) {
-                cb(ERROR.DEFAULT);
-              } else {
-                if (data !== undefined && data.length > 0) {
-                  extendedCustomerData = data && data[0];
-                  if(userData.hasOwnProperty("certificates") && userData.certificates.length > 0){
-                    extendedCustomerData.certificates = data[0].certificates.filter(cert => cert.isActive == true)
-                  }
-                  else {
-                    extendedCustomerData.certificates = []
-                  }
+        Service.UserService.getUserExtended({ userId: customerData._id }, projection, {}, (err, data) => {
+          if (err) cb(err);
+          else {
+            if (data == null || data.length == 0) {
+              Service.UserService.createUserExtended({ userId: customerData._id }, (err, data) => {
+                if (err) cb(err);
+                else {
+                  extendedCustomerData = {
+                    certificates: [],
+                    education: [],
+                    preferredIndustry: [],
+                    savedJobs: [],
+                    skills: [],
+                    userId: customerData._id,
+                    volunteer: [],
+                    workExperience: []
+                  };
+                  cb();
                 }
-                cb();
+              })
+            } else {
+              if (data !== undefined && data.length > 0) {
+                extendedCustomerData = data && data[0];
+                if (userData.hasOwnProperty("certificates") && userData.certificates.length > 0) {
+                  extendedCustomerData.certificates = data[0].certificates.filter(cert => cert.isActive == true)
+                }
+                else {
+                  extendedCustomerData.certificates = []
+                }
               }
+              cb();
             }
           }
+        }
         );
       }
     ],
