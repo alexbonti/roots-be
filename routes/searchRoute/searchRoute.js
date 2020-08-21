@@ -158,7 +158,7 @@ const getAllUserViaName = {
       headers: UniversalFunctions.authorizationHeaderObj,
       failAction: UniversalFunctions.failActionFunction,
       params: {
-        name: Joi.string().required(),
+        name: Joi.string().min(3).required(),
       }
     },
     plugins: {
