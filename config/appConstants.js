@@ -6,6 +6,17 @@
 var SOCIAL = {
   LINKEDIN: "LINKEDIN"
 };
+
+const JOB_APPLICATION = {
+  JOB_STATUS: {
+    PROCESSING: "PROCESSING",
+    APPLIED: "APPLIED",
+    VIEWED: "VIEWED",
+    DENIED: "DENIED",
+    ACCEPTED: "ACCEPTED",
+    WITHDRAWED: "WITHDRAWED"
+  }
+};
 var swaggerDefaultResponseMessages = [
   { code: 200, message: "OK" },
   { code: 400, message: "Bad Request" },
@@ -313,7 +324,8 @@ var APP_CONSTANTS = {
   STATUS_MSG: STATUS_MSG,
   notificationMessages: notificationMessages,
   CUSTOM_ERROR_404: CUSTOM_ERROR_404,
-  CUSTOM_ERROR: CUSTOM_ERROR
+  CUSTOM_ERROR: CUSTOM_ERROR,
+  JOB_APPLICATION: JOB_APPLICATION
 };
 
 module.exports = APP_CONSTANTS;

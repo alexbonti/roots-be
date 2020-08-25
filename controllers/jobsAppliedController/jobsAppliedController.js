@@ -5,6 +5,7 @@ var TokenManager = require('../../lib/tokenManager');
 var CodeGenerator = require('../../lib/codeGenerator');
 var ERROR = UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.ERROR;
 var SUCCESS = UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS;
+var JOB_STATUS = UniversalFunctions.CONFIG.APP_CONSTANTS.JOB_APPLICATION.JOB_STATUS;
 var _ = require('underscore');
 
 
@@ -94,7 +95,6 @@ var applyJob = function (userData, payloadData, callback) {
                 'active': true,
                 'appliedDate': new Date().toISOString(),
                 'withdrawDate': new Date(2050, 05, 05).toISOString(),
-                'applicationStatus': "Processing",
                 'coverLetter': payloadData.coverLetter,
                 'criteriaSelection': payloadData.criteriaSelection
               }
@@ -112,7 +112,6 @@ var applyJob = function (userData, payloadData, callback) {
           } else {
             dataToSave.candidateId = customerData._id;
             dataToSave.appliedDate = new Date().toISOString();
-            dataToSave.applicationStatus = "Processing";
             dataToSave.active = true;
             dataToSave.coverLetter = payloadData.coverLetter
             dataToSave.withdrawDate = new Date(2040, 05, 05).toISOString();
@@ -141,6 +140,7 @@ var applyJob = function (userData, payloadData, callback) {
     }
   });
 };
+
 
 //View jobs applied as user via accesstoken
 var viewAppliedJobs = function (userData, callback) {
@@ -582,7 +582,7 @@ var rejectApplicant = function (userData, payloadData, callbackRoute) {
         $set: {
           'active': false,
           'withdrawDate': null,
-          'applicationStatus': "Unsuccessful Application"
+          'applicationStatus': JOB_STATUS.DENIED
         }
       };
       var condition = {
@@ -591,7 +591,6 @@ var rejectApplicant = function (userData, payloadData, callbackRoute) {
         active: true
       };
       Service.JobsAppliedService.updateJobs(condition, dataToUpdate, {}, function (err, opportunity) {
-        console.log("opportunityData-------->>>" + JSON.stringify(opportunity));
         if (err) {
           callback(err);
         } else {
@@ -614,6 +613,115 @@ var rejectApplicant = function (userData, payloadData, callbackRoute) {
 }
 
 
+const updateJobApplicationStatus = (payload, callback) => {
+  const userData = payload.userData;
+  const newJobStatus = payload.newJobStatus;
+  let opportunityData;
+  async.series([
+    (cb) => {
+      var query = {
+        _id: userData._id
+      };
+      var options = {
+        lean: true
+      };
+      Service.EmployerService.getEmployer(query, {}, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN)
+          else cb()
+        }
+      });
+    },
+    (cb) => {
+      var projection = {
+        __v: 0,
+        password: 0,
+        accessToken: 0,
+        codeUpdatedAt: 0,
+      };
+      var options = {
+        lean: true
+      };
+      Service.OpportunityService.getOpportunity({
+        _id: payload.opportunityId,
+        active: true,
+        employerId: userData._id
+      }, projection, options, (err, data) => {
+        if (err) {
+          cb(err);
+        } else {
+          if (data == null || data.length == 0) {
+            cb(ERROR.INVALID_OPPORTUNITY_ID)
+          } else {
+            cb()
+          }
+        }
+      });
+    },
+    (cb) => {
+      var projection = {
+        __v: 0,
+        accessToken: 0,
+        codeUpdatedAt: 0
+      };
+
+      var options = {
+        lean: true
+      };
+      Service.JobsAppliedService.getJobs({
+        jobId: payload.opportunityId,
+        candidateId: payload.candidateId,
+        active: true
+      }, projection, options, function (err, data) {
+        if (err) {
+          cb(err);
+        } else {
+          if (data == null || data.length == 0) {
+            cb(ERROR.INVALID_JOB_DATA)
+          } else {
+            opportunityData = data && data[0] || null;
+            cb();
+          }
+        }
+      });
+    },
+
+    function (callback) {
+      var dataToUpdate = {
+        $set: {
+          'applicationStatus': newJobStatus
+        }
+      };
+      var condition = {
+        _id: opportunityData._id,
+        candidateId: payload.candidateId,
+        active: true
+      };
+      Service.JobsAppliedService.updateJobs(condition, dataToUpdate, {}, function (err, opportunity) {
+        if (err) {
+          callback(err);
+        } else {
+          if (!opportunity || opportunity.length == 0) {
+            callback(ERROR.NOT_FOUND);
+          } else {
+            callback(null);
+          }
+        }
+      });
+    }
+  ],
+    (error, result) => {
+      if (error) {
+        return callback(error);
+      } else {
+        return callback(null);
+      }
+    });
+}
+
+
 
 
 
@@ -623,5 +731,6 @@ module.exports = {
   viewAppliedJobs: viewAppliedJobs,
   viewJobApplicants: viewJobApplicants,
   viewJobsPosted: viewJobsPosted,
-  rejectApplicant: rejectApplicant
+  rejectApplicant: rejectApplicant,
+  updateJobApplicationStatus, updateJobApplicationStatus
 };

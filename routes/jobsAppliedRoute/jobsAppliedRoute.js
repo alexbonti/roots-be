@@ -3,6 +3,8 @@ var Controller = require('../../controllers');
 var Joi = require('joi');
 var Config = require('../../config');
 
+var JOB_STATUS = Config.APP_CONSTANTS.JOB_APPLICATION.JOB_STATUS;
+
 //Apply for a job as user via accesstoken
 var applyJob = {
   method: 'POST',
@@ -16,7 +18,6 @@ var applyJob = {
       var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
       return new Promise((resolve, reject) => {
         Controller.JobsAppliedController.applyJob(userData, payloadData, function (err, data) {
-          console.log(">>>>>>>".err, data)
           if (err) {
             reject(UniversalFunctions.sendError(err));
           } else {
@@ -233,6 +234,57 @@ var rejectApplicant =
   }
 }
 
+//Reject an applicant by opportunityId and candidateId via accesstoken
+var updateJobApplicationStatus =
+{
+  method: 'PUT',
+  path: '/api/employer/jobApplicationStatus/{jobId}',
+  config: {
+    description: 'Update an application status for a specific job',
+    tags: ['api', 'updateApplication'],
+    auth: 'UserAuth',
+    handler: (request, reply) => {
+      var userData = request.auth && request.auth.credentials && request.auth.credentials.userData || null;
+      return new Promise((resolve, reject) => {
+        const payload = {
+          opportunityId: request.params.jobId,
+          candidateId: request.payload.candidateId,
+          newJobStatus: request.payload.newJobStatus,
+          userData: userData
+        };
+        Controller.JobsAppliedController.updateJobApplicationStatus(payload, function (err, opportunity) {
+          if (!err) {
+            return resolve(UniversalFunctions.sendSuccess(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT, opportunity));
+          }
+          else {
+            return reject(UniversalFunctions.sendError(err));
+          }
+        });
+      })
+    },
+    validate: {
+      headers: UniversalFunctions.authorizationHeaderObj,
+      payload: {
+        candidateId: Joi.string().required(),
+        newJobStatus: Joi.string().valid(
+          JOB_STATUS.ACCEPTED,
+          JOB_STATUS.APPLIED,
+          JOB_STATUS.DENIED,
+          JOB_STATUS.DENIED,
+          JOB_STATUS.PROCESSING,
+          JOB_STATUS.VIEWED,
+        ).required()
+      },
+      failAction: UniversalFunctions.failActionFunction
+    },
+    plugins: {
+      'hapi-swagger': {
+        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
+      }
+    }
+  }
+}
+
 
 
 var JobsAppliedRoute = [
@@ -241,6 +293,7 @@ var JobsAppliedRoute = [
   viewJobsApplied,
   viewJobApplicants,
   viewJobsPosted,
-  rejectApplicant
+  rejectApplicant,
+  updateJobApplicationStatus
 ]
 module.exports = JobsAppliedRoute;
